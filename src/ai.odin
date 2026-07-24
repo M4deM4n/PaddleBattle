@@ -9,6 +9,7 @@ AiState :: struct {
 	posY:          f32,
 	targetY:       f32,
 	reactionTimer: f32,
+	reactionDelay: f32,
 	errFreqTimer:  f32,
 	isTracking:    bool,
 }
@@ -22,9 +23,9 @@ initAI :: proc() {
 }
 
 predictTrajectory :: proc() -> f32 {
-	if ball.velocity.x <= 0.0 {
-		return gameScreenHeight * 0.5
-	}
+	// if ball.velocity.x <= 0.0 {
+	// 	return gameScreenHeight * 0.5
+	// }
 
 	timeToImpact := (paddles[player2].position.x - ball.position.x) / ball.position.x
 	futureY := ball.position.y + (ball.velocity.y * timeToImpact)
@@ -48,7 +49,7 @@ updateAi :: proc(ai: ^AiState, dt: f32) {
 		ai.reactionTimer += dt
 		ai.errFreqTimer += dt
 
-		if ai.reactionTimer >= ai.profile.reactionDelay {
+		if ai.reactionTimer >= ai.reactionDelay {
 			ai.isTracking = true
 			perfectTarget := predictTrajectory()
 
@@ -60,11 +61,17 @@ updateAi :: proc(ai: ^AiState, dt: f32) {
 
 			ai.targetY = math.clamp(perfectTarget + errorOffset, 0.0, gameScreenHeight)
 			ai.reactionTimer = 0.0
+			ai.reactionDelay = (rand.float32_range(0, ai.profile.reactionDelay))
 		}
 	} else {
-		ai.isTracking = false
-		ai.reactionTimer = 0.0
-		if ai.profile.resetPosition {
+		ai.isTracking = ai.profile.alwaysFollow
+		// ai.reactionTimer = 0.0
+
+		if ai.isTracking {
+			ai.targetY = predictTrajectory()
+		}
+
+		if ai.profile.resetPosition && !ai.profile.alwaysFollow {
 			ai.targetY = gameScreenHeight * 0.5
 		}
 
