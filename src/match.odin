@@ -12,6 +12,11 @@ Match :: struct {
 
 currentMatch: Match = Match{}
 
+updateRally :: proc() {
+	currentMatch.rallyCount += 1
+	currentMatch.rallyScore += currentMatch.rallyCount * 10
+}
+
 resetMatch :: proc() {
 	currentMatch.rallyCount = 0
 	currentMatch.rallyScore = 0

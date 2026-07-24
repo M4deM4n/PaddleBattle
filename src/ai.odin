@@ -3,12 +3,14 @@ package PaddleBattle
 import "core:math"
 import "core:math/rand"
 
+
 AiState :: struct {
-	profile:    OpponentProfile,
-	posY:       f32,
-	targetY:    f32,
-	timer:      f32,
-	isTracking: bool,
+	profile:       OpponentProfile,
+	posY:          f32,
+	targetY:       f32,
+	reactionTimer: f32,
+	errFreqTimer:  f32,
+	isTracking:    bool,
 }
 
 initAI :: proc() {
@@ -43,18 +45,25 @@ updateAi :: proc(ai: ^AiState, dt: f32) {
 	// calculate destination Y
 	if ball.velocity.x > 0.0 {
 
-		ai.timer += dt
-		if ai.timer >= ai.profile.reactionDelay {
+		ai.reactionTimer += dt
+		ai.errFreqTimer += dt
+
+		if ai.reactionTimer >= ai.profile.reactionDelay {
 			ai.isTracking = true
 			perfectTarget := predictTrajectory()
 
-			errorOffset := (rand.float32_range(-5.0, 5.0)) * ai.profile.predictionError
+			errorOffset: f32 = 0
+			if ai.errFreqTimer >= ai.profile.errorFreq {
+				errorOffset = (rand.float32_range(-5.0, 5.0)) * ai.profile.predictionError
+				ai.errFreqTimer = 0
+			}
+
 			ai.targetY = math.clamp(perfectTarget + errorOffset, 0.0, gameScreenHeight)
-			ai.timer = 0.0
+			ai.reactionTimer = 0.0
 		}
 	} else {
 		ai.isTracking = false
-		ai.timer = 0.0
+		ai.reactionTimer = 0.0
 		if ai.profile.resetPosition {
 			ai.targetY = gameScreenHeight * 0.5
 		}
