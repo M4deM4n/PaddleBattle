@@ -14,6 +14,8 @@ renderScale: f32
 shouldClose: bool = false
 
 main :: proc() {
+
+
 	rl.SetConfigFlags({.WINDOW_RESIZABLE, .VSYNC_HINT, .BORDERLESS_WINDOWED_MODE})
 	rl.InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "PaddleBattle")
 	rl.SetExitKey(.KEY_NULL)
@@ -22,7 +24,7 @@ main :: proc() {
 
 	rl.SetTargetFPS(500)
 
-	init()
+	init(GameState.Playing)
 	initFont()
 	defer rl.UnloadFont(gameFont.font)
 

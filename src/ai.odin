@@ -23,10 +23,6 @@ initAI :: proc() {
 }
 
 predictTrajectory :: proc() -> f32 {
-	// if ball.velocity.x <= 0.0 {
-	// 	return gameScreenHeight * 0.5
-	// }
-
 	timeToImpact := (paddles[player2].position.x - ball.position.x) / ball.position.x
 	futureY := ball.position.y + (ball.velocity.y * timeToImpact)
 

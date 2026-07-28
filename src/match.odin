@@ -3,14 +3,17 @@ package PaddleBattle
 import "core:fmt"
 import rl "vendor:raylib"
 
-Match :: struct {
-	rallyCount: i32,
-	rallyScore: i32,
-	p1Score:    i32,
-	p2Score:    i32,
+MatchState :: struct {
+	timer:             f32,
+	rallyCount:        i32,
+	rallyScore:        i32,
+	p1Score:           i32,
+	p2Score:           i32,
+	increaseBallSpeed: bool,
 }
 
-currentMatch: Match = Match{}
+
+currentMatch: MatchState = MatchState{}
 
 updateRally :: proc() {
 	currentMatch.rallyCount += 1
@@ -18,6 +21,7 @@ updateRally :: proc() {
 }
 
 resetMatch :: proc() {
+	currentMatch.timer = 0
 	currentMatch.rallyCount = 0
 	currentMatch.rallyScore = 0
 	currentMatch.p1Score = 0

@@ -83,12 +83,6 @@ updateBall :: proc(dt: f32) {
 		ball.velocity.y *= -1
 	}
 
-
-	// // // debug side screen collision
-	// // if ball.position.x >= f32(gameScreenWidth) - ball.radius || ball.position.x <= ball.radius {
-	// // 	ball.velocity.x *= -1
-	// // }
-
 	if ball.position.x > gameScreenWidth || ball.position.x < 0 {
 		gameState = GameState.PlayerScored
 	}
@@ -131,18 +125,28 @@ CheckCollisionLineRect :: proc(
 
 
 	// Check collision against each edge
-	if rl.CheckCollisionLines(line_start, line_end, top_start, top_end, out_point) {
-		return true
+	// if rl.CheckCollisionLines(line_start, line_end, top_start, top_end, out_point) {
+	// 	return true
+	// }
+
+	if ball.velocity.x < 0 {
+		if rl.CheckCollisionLines(line_start, line_end, right_start, right_end, out_point) {
+			out_point.x -= 0.05
+			return true
+		}
 	}
-	if rl.CheckCollisionLines(line_start, line_end, right_start, right_end, out_point) {
-		return true
+
+	// if rl.CheckCollisionLines(line_start, line_end, bottom_start, bottom_end, out_point) {
+	// 	return true
+	// }
+
+	if ball.velocity.x > 0 {
+		if rl.CheckCollisionLines(line_start, line_end, left_start, left_end, out_point) {
+			out_point.x += 0.05
+			return true
+		}
 	}
-	if rl.CheckCollisionLines(line_start, line_end, bottom_start, bottom_end, out_point) {
-		return true
-	}
-	if rl.CheckCollisionLines(line_start, line_end, left_start, left_end, out_point) {
-		return true
-	}
+
 
 	return false
 }
