@@ -26,7 +26,7 @@ initBall :: proc() {
 		position = {gameScreenWidth * 0.5, gameScreenHeight * 0.5},
 		velocity = {ballspeed, ballspeed},
 		radius   = 10,
-		color    = {255, 255, 255, 255},
+		color    = {0, 0, 0, 255},
 	}
 }
 
@@ -42,7 +42,7 @@ updateBall :: proc(dt: f32) {
 	lastBallPosition = ball.position
 	nextBallPosition = ball.position + ((rl.Vector2Normalize(ball.velocity) * ballspeed) * dt)
 
-	for playerPaddle in paddles {
+	for &playerPaddle in paddles {
 		paddleRect = {
 			playerPaddle.position.x,
 			playerPaddle.position.y,
@@ -51,11 +51,15 @@ updateBall :: proc(dt: f32) {
 		}
 
 		if rl.CheckCollisionCircleRec(ball.position, ball.radius, paddleRect) {
+			playerPaddle.color = rl.WHITE
+
+			rl.PlaySound(audioBallImpact)
 			ballspeed += 50
 			updateRally()
 
 			// ball.velocity.x *= -1
 			ball.velocity = calculateNewVelocity(playerPaddle)
+
 
 		} else if CheckCollisionLineRect(
 			lastBallPosition,
@@ -63,6 +67,7 @@ updateBall :: proc(dt: f32) {
 			paddleRect,
 			&hitPoint,
 		) {
+			rl.PlaySound(audioBallImpact)
 			ball.position = hitPoint
 
 			// increase ball velocity
@@ -84,6 +89,7 @@ updateBall :: proc(dt: f32) {
 	}
 
 	if ball.position.x > gameScreenWidth || ball.position.x < 0 {
+		rl.PlaySound(audioHorn)
 		gameState = GameState.PlayerScored
 	}
 }

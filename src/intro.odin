@@ -1,10 +1,13 @@
 package PaddleBattle
 
+import "core:fmt"
 import rl "vendor:raylib"
 
-IntroTextAlpha: f32 = 0.0
-introTextColor: rl.Color = rl.WHITE
+introAlpha: f32 = 0.0
+introTextColor: rl.Color = rl.BLACK
+introTextureColor: rl.Color = rl.WHITE
 introTimer: f32
+introSoundPlayed: bool
 
 IntroUpdate :: proc(dt: f32) {
 	introTimer += dt
@@ -13,24 +16,42 @@ IntroUpdate :: proc(dt: f32) {
 		return
 	}
 
-	if IntroTextAlpha < 1 {
-		IntroTextAlpha += 0.75 * dt
-		if IntroTextAlpha > 1.0 {IntroTextAlpha = 1.0}
+	if introAlpha < 1 {
+		introAlpha += 0.75 * dt
+		if introAlpha > 1.0 {introAlpha = 1.0}
 	}
 
-	if introTimer >= 5 {
+	if !rl.IsSoundPlaying(introLaughter) && introAlpha >= 0.5 && !introSoundPlayed {
+		rl.PlaySound(introLaughter)
+		introSoundPlayed = true
+	}
+
+	if introTimer >= 8 {
 		introTimer = 0
 		gameState = GameState.MainMenu
 	}
+
+
 }
 
 IntroRender :: proc() {
+	rl.ClearBackground({255, 227, 102, 255})
+	rl.BeginBlendMode(.ALPHA)
+	introTextureColor = rl.Fade(rl.WHITE, introAlpha)
+	introTextColor = rl.Fade(rl.BLACK, introAlpha)
 
-	introTextColor = rl.Fade(rl.WHITE, IntroTextAlpha)
+
+	rl.DrawTexture(
+		studioTexture,
+		i32(gameScreenWidth * 0.5) - i32(f32(studioTexture.width) * 0.5),
+		i32(gameScreenHeight * 0.5) - i32(f32(studioTexture.height) * 0.5),
+		introTextureColor,
+	)
+	rl.EndBlendMode()
 
 	renderText(
-		{gameScreenWidth * 0.5, gameScreenHeight * 0.5},
-		"PIZANO PRESENTS...",
+		{gameScreenWidth * 0.5, gameScreenHeight * 0.5 + 200},
+		"SNG Studios",
 		72,
 		introTextColor,
 	)

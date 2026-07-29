@@ -31,6 +31,9 @@ locLineColor: c.int
 locGlowColor: c.int
 
 init :: proc(gs: GameState) {
+	initAudio()
+
+
 	paddle_velocity = 600
 	ignoreCollission = false
 	ballspeed = 500

@@ -6,9 +6,16 @@ matchBeginTimer: f32
 matchCounterIndex: i32
 matchCounterText: [4]cstring = {"3", "2", "1", "GO!"}
 matchBeginText: cstring
+announceMatch: bool = true
+
 
 MatchBeginUpdate :: proc(dt: f32) {
 	matchBeginTimer += dt
+
+	if !rl.IsSoundPlaying(audioStartMatch) && announceMatch {
+		announceMatch = false
+		rl.PlaySound(audioStartMatch)
+	}
 
 	if matchBeginTimer >= 1 {
 		matchCounterIndex += 1
@@ -16,6 +23,7 @@ MatchBeginUpdate :: proc(dt: f32) {
 	}
 
 	if matchCounterIndex >= len(matchCounterText) {
+		announceMatch = true
 		matchCounterIndex = 0
 		gameState = GameState.Playing
 	}

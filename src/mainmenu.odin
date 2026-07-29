@@ -9,6 +9,8 @@ gameOptions := []cstring{SINGLE_PLAYER, LOCAL_MULTIPLAYER}
 selectedOption: int
 selectedColor: rl.Color = rl.YELLOW
 
+MainMenuLoaded: bool = false
+
 MainMenuInput :: proc() {
 	if rl.IsKeyPressed(.ESCAPE) {
 		shouldClose = true
@@ -16,10 +18,12 @@ MainMenuInput :: proc() {
 
 	if rl.IsKeyPressed(.W) {
 		selectedOption -= 1
+		rl.PlaySound(audioMenuSelect)
 	}
 
 	if rl.IsKeyPressed(.S) {
 		selectedOption += 1
+		rl.PlaySound(audioMenuSelect)
 	}
 
 	if rl.IsKeyPressed(.SPACE) || rl.IsKeyPressed(.ENTER) {
@@ -46,6 +50,10 @@ MainMenuInput :: proc() {
 
 MainMenuUpdate :: proc(dt: f32) {
 	MainMenuInput()
+	if !rl.IsSoundPlaying(audioTitle) && !MainMenuLoaded {
+		MainMenuLoaded = true
+		rl.PlaySound(audioTitle)
+	}
 }
 
 MainMenuRender :: proc() {

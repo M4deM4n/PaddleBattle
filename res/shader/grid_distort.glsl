@@ -21,14 +21,6 @@ void main() {
     vec2 p = vec2(gl_FragCoord.x, u_targetHeight - gl_FragCoord.y);
 
     // Ball distortion
-    //
-    // The falloff uses smoothstep instead of a linear ramp so its slope reaches
-    // zero at the boundary (dist == u_distortRadius). With a linear falloff the
-    // slope changes abruptly there, which shows up as a visible circular
-    // "ring" in fine grids -- feathering with smoothstep removes it.
-    //
-    //   smoothstep(edge0, edge1, x): edge0 > edge1 reverses the ramp, so
-    //   this returns 1 at dist=0, smoothly falling to 0 at dist=u_distortRadius.
     vec2 gp = p;
     float dist = length(p - u_ballPos);
     float falloff = smoothstep(u_distortRadius, 0.0, dist);

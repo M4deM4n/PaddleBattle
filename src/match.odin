@@ -1,6 +1,7 @@
 package PaddleBattle
 
 import "core:fmt"
+import "core:math/rand"
 import rl "vendor:raylib"
 
 MatchState :: struct {
@@ -12,12 +13,22 @@ MatchState :: struct {
 	increaseBallSpeed: bool,
 }
 
-
 currentMatch: MatchState = MatchState{}
+announceSpeed: bool = true
+
 
 updateRally :: proc() {
 	currentMatch.rallyCount += 1
 	currentMatch.rallyScore += currentMatch.rallyCount * 10
+
+	if currentMatch.rallyCount == 8 && announceSpeed {
+		announceSpeed = false
+		rl.PlaySound(audioSpeedingUp)
+	}
+
+	if currentMatch.rallyCount % 15 == 0 {
+		rl.PlaySound(rand.choice(announcerRally[:]))
+	}
 }
 
 resetMatch :: proc() {
@@ -26,6 +37,8 @@ resetMatch :: proc() {
 	currentMatch.rallyScore = 0
 	currentMatch.p1Score = 0
 	currentMatch.p2Score = 0
+
+	announceSpeed = true
 
 	resetPaddles()
 	resetBall()

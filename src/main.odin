@@ -13,18 +13,22 @@ renderScale: f32
 
 shouldClose: bool = false
 
+studioTexture: rl.Texture2D
 main :: proc() {
-
 
 	rl.SetConfigFlags({.WINDOW_RESIZABLE, .VSYNC_HINT, .BORDERLESS_WINDOWED_MODE})
 	rl.InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "PaddleBattle")
 	rl.SetExitKey(.KEY_NULL)
 	rl.SetWindowMinSize(640, 360) // 16:9 aspect ratio
-
-
 	rl.SetTargetFPS(500)
 
-	init(GameState.Playing)
+	rl.InitAudioDevice()
+	defer rl.CloseAudioDevice()
+
+	studioTexture = rl.LoadTexture("../res/img/poo.png")
+	defer rl.UnloadTexture(studioTexture)
+
+	init(GameState.Intro)
 	initFont()
 	defer rl.UnloadFont(gameFont.font)
 
@@ -85,6 +89,7 @@ main :: proc() {
 		rl.EndDrawing()
 	}
 
+	unloadAudio()
 	rl.UnloadRenderTexture(renderTarget)
 	rl.CloseWindow()
 }

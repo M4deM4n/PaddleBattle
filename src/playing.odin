@@ -58,8 +58,8 @@ GameUpdate :: proc(dt: f32) {
 	rl.SetShaderValue(gridShader, locDistortRadius, &distortRadius, rl.ShaderUniformDataType.FLOAT)
 
 	bgColor := [3]f32{0.0, 0.0, 0.0}
-	lineColor := [3]f32{0.3, 0.3, 0.3}
-	glowColor := [3]f32{0.00, 0.60, 1.00}
+	lineColor := [3]f32{0.2, 0.2, 0.2}
+	glowColor := [3]f32{0.60, 0.0, 1.00}
 	rl.SetShaderValue(gridShader, locBgColor, &bgColor, rl.ShaderUniformDataType.VEC3)
 	rl.SetShaderValue(gridShader, locLineColor, &lineColor, rl.ShaderUniformDataType.VEC3)
 	rl.SetShaderValue(gridShader, locGlowColor, &glowColor, rl.ShaderUniformDataType.VEC3)
@@ -75,6 +75,15 @@ GameUpdate :: proc(dt: f32) {
 
 	// clamp paddles so they stay on screen
 	for i in 0 ..= 1 {
+		if i == 0 {
+			paddles[i].color = rl.ColorLerp(paddles[i].color, rl.BLUE, dt)
+		}
+
+		if i == 1 {
+			paddles[i].color = rl.ColorLerp(paddles[i].color, rl.RED, dt)
+		}
+
+
 		paddles[i].position.y = clamp(
 			paddles[i].position.y,
 			0,

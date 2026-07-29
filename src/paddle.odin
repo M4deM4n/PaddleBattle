@@ -18,14 +18,14 @@ initPaddles :: proc() {
 		size     = {20, 100},
 		position = {10, startPosY},
 		velocity = paddle_velocity,
-		color    = {255, 255, 255, 255},
+		color    = {0, 0, 255, 255},
 	}
 
 	paddle_r := Paddle {
 		position = {gameScreenWidth - 30, startPosY},
 		size     = {20, 100},
 		velocity = paddle_velocity,
-		color    = {255, 255, 255, 255},
+		color    = {255, 0, 0, 255},
 	}
 
 	paddles[player1] = paddle_l
