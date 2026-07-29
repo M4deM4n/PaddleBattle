@@ -70,6 +70,7 @@ GameUpdate :: proc(dt: f32) {
 		updateAi(&aiState, dt)
 	}
 
+	updateMatch(dt)
 	updateGameInput(dt)
 	updateBall(dt)
 

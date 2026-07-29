@@ -29,9 +29,11 @@ MainMenuInput :: proc() {
 	if rl.IsKeyPressed(.SPACE) || rl.IsKeyPressed(.ENTER) {
 		switch gameOptions[selectedOption] {
 		case SINGLE_PLAYER:
+			MainMenuLoaded = false
 			gameMode = GameMode.SinglePlayer
 
 		case LOCAL_MULTIPLAYER:
+			MainMenuLoaded = false
 			gameMode = GameMode.Multiplayer
 		}
 
