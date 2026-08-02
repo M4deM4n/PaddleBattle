@@ -37,3 +37,54 @@ resetPaddles :: proc() {
 		paddles[i].position.y = startPosY
 	}
 }
+
+updatePaddleInput :: proc(dt: f32) {
+	// player 1
+	if rl.IsKeyDown(.W) {
+		paddles[player1].position.y -= paddles[player1].velocity * dt
+	}
+
+	if rl.IsKeyDown(.S) {
+		paddles[player1].position.y += paddles[player1].velocity * dt
+	}
+
+	// player 2
+	if gameMode == GameMode.Multiplayer || gameMode == GameMode.MultiplayerTimed {
+
+		if rl.IsKeyDown(.KP_8) {
+			paddles[player2].position.y -= paddles[player2].velocity * dt
+		}
+
+		if rl.IsKeyDown(.KP_5) {
+			paddles[player2].position.y += paddles[player2].velocity * dt
+		}
+	}
+}
+
+updatePaddles :: proc(dt: f32) {
+	updatePaddleInput(dt)
+
+	// clamp paddles so they stay on screen
+	for i in 0 ..= 1 {
+		if i == 0 {
+			paddles[i].color = rl.ColorLerp(paddles[i].color, rl.BLUE, dt)
+		}
+
+		if i == 1 {
+			paddles[i].color = rl.ColorLerp(paddles[i].color, rl.RED, dt)
+		}
+
+
+		paddles[i].position.y = clamp(
+			paddles[i].position.y,
+			0,
+			gameScreenHeight - paddles[i].size.y,
+		)
+	}
+}
+
+renderPaddles :: proc() {
+	for playerPaddle in paddles {
+		rl.DrawRectangleV(playerPaddle.position, playerPaddle.size, playerPaddle.color)
+	}
+}

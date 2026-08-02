@@ -13,34 +13,13 @@ updateGameInput :: proc(dt: f32) {
 		rl.ToggleFullscreen()
 	}
 
-	// player 1
-	if rl.IsKeyDown(.W) {
-		paddles[player1].position.y -= paddles[player1].velocity * dt
-	}
-
-	if rl.IsKeyDown(.S) {
-		paddles[player1].position.y += paddles[player1].velocity * dt
-	}
-
-	// player 2
-	if gameMode == GameMode.Multiplayer || gameMode == GameMode.MultiplayerTimed {
-
-		if rl.IsKeyDown(.KP_8) {
-			paddles[player2].position.y -= paddles[player2].velocity * dt
-		}
-
-		if rl.IsKeyDown(.KP_5) {
-			paddles[player2].position.y += paddles[player2].velocity * dt
-		}
-	}
-
 	// debug
 	if rl.IsKeyReleased(.SPACE) {
 		resetMatch()
 	}
 }
 
-GameUpdate :: proc(dt: f32) {
+GameShaderUpdate :: proc(dt: f32) {
 	targetHeight := gameScreenHeight
 	rl.SetShaderValue(gridShader, locTargetHeight, &targetHeight, rl.ShaderUniformDataType.FLOAT)
 
@@ -63,6 +42,10 @@ GameUpdate :: proc(dt: f32) {
 	rl.SetShaderValue(gridShader, locBgColor, &bgColor, rl.ShaderUniformDataType.VEC3)
 	rl.SetShaderValue(gridShader, locLineColor, &lineColor, rl.ShaderUniformDataType.VEC3)
 	rl.SetShaderValue(gridShader, locGlowColor, &glowColor, rl.ShaderUniformDataType.VEC3)
+}
+
+GameUpdate :: proc(dt: f32) {
+	GameShaderUpdate(dt)
 
 	// updatePowerUp(dt)
 
@@ -72,25 +55,8 @@ GameUpdate :: proc(dt: f32) {
 
 	updateMatch(dt)
 	updateGameInput(dt)
+	updatePaddles(dt)
 	updateBall(dt)
-
-	// clamp paddles so they stay on screen
-	for i in 0 ..= 1 {
-		if i == 0 {
-			paddles[i].color = rl.ColorLerp(paddles[i].color, rl.BLUE, dt)
-		}
-
-		if i == 1 {
-			paddles[i].color = rl.ColorLerp(paddles[i].color, rl.RED, dt)
-		}
-
-
-		paddles[i].position.y = clamp(
-			paddles[i].position.y,
-			0,
-			gameScreenHeight - paddles[i].size.y,
-		)
-	}
 }
 
 GameRender :: proc() {
@@ -102,9 +68,7 @@ GameRender :: proc() {
 
 	// rl.DrawCircleV(powerUp.position, powerUp.radius, rl.YELLOW)
 
-	for playerPaddle in paddles {
-		rl.DrawRectangleV(playerPaddle.position, playerPaddle.size, playerPaddle.color)
-	}
+	renderPaddles()
 
 	rl.DrawCircleV(ball.position, ball.radius, ball.color)
 	// renderPowerUp()

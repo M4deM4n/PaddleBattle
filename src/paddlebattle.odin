@@ -60,42 +60,11 @@ init :: proc(gs: GameState) {
 }
 
 update :: proc(dt: f32) {
-	#partial switch gameState {
-	case GameState.Intro:
-		IntroUpdate(dt)
-
-	case GameState.MainMenu:
-		MainMenuUpdate(dt)
-
-	case GameState.MatchBegin:
-		MatchBeginUpdate(dt)
-
-	case GameState.Playing:
-		GameUpdate(dt)
-
-	case GameState.PlayerScored:
-		PlayerScoredUpdate(dt)
-
-	}
+	updateGameState(dt)
 }
 
 render :: proc() {
 	rl.ClearBackground({0, 0, 0, 255})
 
-	#partial switch gameState {
-	case GameState.Intro:
-		IntroRender()
-
-	case GameState.MainMenu:
-		MainMenuRender()
-
-	case GameState.MatchBegin:
-		MatchBeginRender()
-
-	case GameState.Playing:
-		GameRender()
-
-	case GameState.PlayerScored:
-		PlayerScoredRender()
-	}
+	renderGameState()
 }

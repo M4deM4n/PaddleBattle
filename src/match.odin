@@ -15,7 +15,7 @@ MatchState :: struct {
 
 currentMatch: MatchState = MatchState{}
 announceSpeed: bool = true
-scoreColor: rl.Color = {0, 0, 96, 255}
+scoreColor: rl.Color = rl.DARKBLUE
 currentScoreColor: rl.Color = {0, 0, 96, 255}
 
 updateMatch :: proc(dt: f32) {
@@ -34,6 +34,7 @@ updateRally :: proc() {
 
 	if currentMatch.rallyCount % 15 == 0 {
 		rl.PlaySound(rand.choice(announcerRally[:]))
+
 	}
 }
 
@@ -45,6 +46,10 @@ resetMatch :: proc() {
 	currentMatch.p2Score = 0
 
 	announceSpeed = true
+
+	rand.shuffle(announcerRally[:])
+	rand.shuffle(announcerGoal[:])
+
 
 	resetPaddles()
 	resetBall()

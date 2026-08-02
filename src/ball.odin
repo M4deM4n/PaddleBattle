@@ -34,13 +34,13 @@ resetBall :: proc() {
 	ballspeed = 550
 	ball.position = {gameScreenWidth * 0.5, gameScreenHeight * 0.5}
 	ball.velocity = rl.Vector2Normalize(ball.velocity) * ballspeed
-
-
 }
 
 updateBall :: proc(dt: f32) {
 	lastBallPosition = ball.position
 	nextBallPosition = ball.position + ((rl.Vector2Normalize(ball.velocity) * ballspeed) * dt)
+
+	dist := math.abs(lastBallPosition.x - nextBallPosition.x)
 
 	for &playerPaddle in paddles {
 		paddleRect = {
@@ -50,34 +50,49 @@ updateBall :: proc(dt: f32) {
 			playerPaddle.size.y,
 		}
 
-		if rl.CheckCollisionCircleRec(ball.position, ball.radius, paddleRect) {
-			playerPaddle.color = rl.WHITE
+		if dist >= ball.radius * 2 {
+			if CheckCollisionLineRect(lastBallPosition, nextBallPosition, paddleRect, &hitPoint) {
+				rl.PlaySound(audioBallImpact)
+				ball.position = hitPoint
 
-			rl.PlaySound(audioBallImpact)
-			ballspeed += 50
-			updateRally()
+				// increase ball velocity
+				ballspeed += 50
 
-			// ball.velocity.x *= -1
-			ball.velocity = calculateNewVelocity(playerPaddle)
+				updateRally()
+
+				// ball.velocity *= -1
+				ball.velocity = calculateNewVelocity(playerPaddle)
+			}
+
+		} else {
+
+			if rl.CheckCollisionCircleRec(ball.position, ball.radius, paddleRect) {
+				playerPaddle.color = rl.WHITE
+
+				rl.PlaySound(audioBallImpact)
+				ballspeed += 50
+				updateRally()
+
+				if ball.velocity.x < 0 {
+					paddleEdgeX := playerPaddle.position.x + (playerPaddle.size.x * 0.5)
+					if ball.position.x < paddleEdgeX {
+						ball.position.x = paddleEdgeX + ball.radius
+					}
+
+				} else {
+					paddleEdgeX := playerPaddle.position.x - (playerPaddle.size.x * 0.5)
+					if ball.position.x > paddleEdgeX {
+						ball.position.x = paddleEdgeX - ball.radius
+					}
+				}
+
+				ball.velocity = calculateNewVelocity(playerPaddle)
 
 
-		} else if CheckCollisionLineRect(
-			lastBallPosition,
-			nextBallPosition,
-			paddleRect,
-			&hitPoint,
-		) {
-			rl.PlaySound(audioBallImpact)
-			ball.position = hitPoint
-
-			// increase ball velocity
-			ballspeed += 50
-
-			updateRally()
-
-			// ball.velocity *= -1
-			ball.velocity = calculateNewVelocity(playerPaddle)
+			}
 		}
+
+
 	}
 
 	ball.position += (rl.Vector2Normalize(ball.velocity) * ballspeed) * dt
@@ -135,22 +150,31 @@ CheckCollisionLineRect :: proc(
 	// 	return true
 	// }
 
-	if ball.velocity.x < 0 {
-		if rl.CheckCollisionLines(line_start, line_end, right_start, right_end, out_point) {
-			out_point.x -= 0.05
-			return true
+
+	if rl.CheckCollisionLines(line_start, line_end, right_start, right_end, out_point) {
+		if ball.velocity.x < 0 {
+			out_point.x += ball.radius
+		} else {
+			out_point.x -= ball.radius + (rec.width * 0.5)
 		}
+
+		return true
+
 	}
 
 	// if rl.CheckCollisionLines(line_start, line_end, bottom_start, bottom_end, out_point) {
 	// 	return true
 	// }
 
-	if ball.velocity.x > 0 {
-		if rl.CheckCollisionLines(line_start, line_end, left_start, left_end, out_point) {
-			out_point.x += 0.05
-			return true
+
+	if rl.CheckCollisionLines(line_start, line_end, left_start, left_end, out_point) {
+		if ball.velocity.x < 0 {
+			out_point.x += ball.radius + (rec.width * 0.5)
+		} else {
+			out_point.x -= ball.radius
 		}
+		return true
+
 	}
 
 

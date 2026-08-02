@@ -51,11 +51,12 @@ MainMenuInput :: proc() {
 }
 
 MainMenuUpdate :: proc(dt: f32) {
-	MainMenuInput()
 	if !rl.IsSoundPlaying(audioTitle) && !MainMenuLoaded {
 		MainMenuLoaded = true
 		rl.PlaySound(audioTitle)
 	}
+
+	MainMenuInput()
 }
 
 MainMenuRender :: proc() {
