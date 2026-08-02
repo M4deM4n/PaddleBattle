@@ -19,40 +19,16 @@ startPosY: f32
 
 aiState: AiState
 
-gridShader: rl.Shader
-locTargetHeight: c.int
-locGridSize: c.int
-locBallPosition: c.int
-locBallRadius: c.int
-locDistortRadius: c.int
-locLineWidth: c.int
-locBgColor: c.int
-locLineColor: c.int
-locGlowColor: c.int
-
 init :: proc(gs: GameState) {
 	initAudio()
-
 
 	paddle_velocity = 600
 	ignoreCollission = false
 	ballspeed = 500
 
-	gridShader = rl.LoadShaderFromMemory(nil, #load("../res/shader/grid_distort.glsl", cstring))
-	locTargetHeight = rl.GetShaderLocation(gridShader, "u_targetHeight")
-	locGridSize = rl.GetShaderLocation(gridShader, "u_gridSize")
-	locBallPosition = rl.GetShaderLocation(gridShader, "u_ballPos")
-	locBallRadius = rl.GetShaderLocation(gridShader, "u_ballRadius")
-	locDistortRadius = rl.GetShaderLocation(gridShader, "u_distortRadius")
-	locLineWidth = rl.GetShaderLocation(gridShader, "u_lineWidth")
-	locBgColor = rl.GetShaderLocation(gridShader, "u_bgColor")
-	locLineColor = rl.GetShaderLocation(gridShader, "u_lineColor")
-	locGlowColor = rl.GetShaderLocation(gridShader, "u_glowColor")
-
-	if locBallPosition < 0 {fmt.println("Warning: u_ballPos not found in shader")}
-
-	initPaddles()
 	initBall()
+	initPaddles()
+	initBackgrounds()
 	initPowerUp()
 	initAI()
 
