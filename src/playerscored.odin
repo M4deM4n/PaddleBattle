@@ -17,13 +17,18 @@ PlayerScoredInput :: proc() {
 		announceScoreDialog = true
 		dialogDelayTimer = 0
 		gameState = GameState.MatchBegin
+		rl.StopMusicStream(music)
 	}
 }
 
 PlayerScoredUpdate :: proc(dt: f32) {
 	dialogDelayTimer += dt
 
-	if announceScoreDialog && dialogDelayTimer >= 0 {
+	if rl.IsMusicStreamPlaying(music) {
+		rl.UpdateMusicStream(music)
+	}
+
+	if announceScoreDialog && dialogDelayTimer >= 1.0 {
 		rl.PlaySound(rand.choice(announcerGoal[:]))
 		announceScoreDialog = false
 	}

@@ -24,6 +24,13 @@ updateGameInput :: proc(dt: f32) {
 }
 
 GameUpdate :: proc(dt: f32) {
+
+	if !rl.IsMusicStreamPlaying(music) {
+		rl.PlayMusicStream(music)
+	}
+
+	rl.UpdateMusicStream(music)
+
 	// GameShaderUpdate(dt)
 	updateBackground(dt)
 	// updatePowerUp(dt)

@@ -12,6 +12,7 @@ audioHorn: rl.Sound
 audioSpeedingUp: rl.Sound
 announcerGoal: [12]rl.Sound
 announcerRally: [11]rl.Sound
+music: rl.Music
 
 initAudio :: proc() {
 	introSoundPlayed = false
@@ -22,6 +23,8 @@ initAudio :: proc() {
 	audioBallImpact = rl.LoadSound("../res/sfx/ball_impact.ogg")
 	audioHorn = rl.LoadSound("../res/sfx/horn.ogg")
 	audioSpeedingUp = rl.LoadSound("../res/sfx/announcer/speedingup.mp3")
+
+	music = rl.LoadMusicStream("../res/sfx/music/eyeofthetiger.ogg")
 
 	// goal
 	for i in 0 ..< 12 {
@@ -56,4 +59,6 @@ unloadAudio :: proc() {
 	for sound in announcerRally {
 		rl.UnloadSound(sound)
 	}
+
+	rl.UnloadMusicStream(music)
 }

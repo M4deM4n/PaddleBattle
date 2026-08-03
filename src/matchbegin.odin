@@ -13,9 +13,15 @@ MatchBeginUpdate :: proc(dt: f32) {
 	matchBeginTimer += dt
 
 	if !rl.IsSoundPlaying(audioStartMatch) && announceMatch {
+		if rl.IsMusicStreamPlaying(music) {
+			rl.StopMusicStream(music)
+		}
 		announceMatch = false
 		rl.PlaySound(audioStartMatch)
+		rl.PlayMusicStream(music)
 	}
+
+	rl.UpdateMusicStream(music)
 
 	if matchBeginTimer >= 1 {
 		matchCounterIndex += 1

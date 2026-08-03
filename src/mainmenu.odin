@@ -38,6 +38,7 @@ MainMenuInput :: proc() {
 		}
 
 		gameState = GameState.MatchBegin
+		rl.StopMusicStream(music)
 	}
 
 	// bounds checks
@@ -54,8 +55,9 @@ MainMenuUpdate :: proc(dt: f32) {
 	if !rl.IsSoundPlaying(audioTitle) && !MainMenuLoaded {
 		MainMenuLoaded = true
 		rl.PlaySound(audioTitle)
+		// rl.PlayMusicStream(music)
 	}
-
+	// rl.UpdateMusicStream(music)
 	MainMenuInput()
 }
 
