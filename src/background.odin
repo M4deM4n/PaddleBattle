@@ -6,6 +6,7 @@ BackgroundID :: enum {
 	GridDistort,
 	StarfieldSquares,
 	HexScroll,
+	RadialStripes,
 }
 
 Background :: struct {
@@ -13,6 +14,7 @@ Background :: struct {
 	name:    cstring,
 	shader:  rl.Shader,
 	data:    rawptr,
+	reset:   proc(bg: ^Background),
 	update:  proc(bg: ^Background, dt: f32),
 	render:  proc(bg: ^Background),
 	destroy: proc(bg: ^Background),
@@ -25,6 +27,7 @@ initBackgrounds :: proc() {
 	backgrounds[.GridDistort] = makeGridDistortBackground()
 	backgrounds[.StarfieldSquares] = makeStarfieldSquaresBackground()
 	backgrounds[.HexScroll] = makeHexScrollBackground()
+	backgrounds[.RadialStripes] = makeRadialStripesBackground()
 }
 
 setBackground :: proc(id: BackgroundID) {
@@ -35,6 +38,11 @@ cycleBackground :: proc() {
 	next := int(currentBgID) + 1
 	if next >= len(BackgroundID) do next = 0
 	currentBgID = BackgroundID(next)
+}
+
+resetBackground :: proc() {
+	bg := &backgrounds[currentBgID]
+	if bg.reset != nil do bg.reset(bg)
 }
 
 updateBackground :: proc(dt: f32) {

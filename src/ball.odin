@@ -5,10 +5,12 @@ import "core:math"
 import rl "vendor:raylib"
 
 Ball :: struct {
-	position: rl.Vector2,
-	velocity: rl.Vector2,
-	radius:   f32,
-	color:    rl.Color,
+	position:     rl.Vector2,
+	velocity:     rl.Vector2,
+	radius:       f32,
+	color:        rl.Color,
+	shadowColor:  rl.Color,
+	shadowOffset: rl.Vector2,
 }
 
 collissionTimer: f32
@@ -23,10 +25,12 @@ paddleRect: rl.Rectangle
 
 initBall :: proc() {
 	ball = Ball {
-		position = {gameScreenWidth * 0.5, gameScreenHeight * 0.5},
-		velocity = {ballspeed, ballspeed},
-		radius   = 10,
-		color    = {0, 0, 0, 255},
+		position     = {gameScreenWidth * 0.5, gameScreenHeight * 0.5},
+		velocity     = {ballspeed, ballspeed},
+		radius       = 10,
+		color        = {0, 0, 0, 255},
+		shadowColor  = {0, 0, 0, 255},
+		shadowOffset = {3, 3},
 	}
 }
 
@@ -107,6 +111,11 @@ updateBall :: proc(dt: f32) {
 		rl.PlaySound(audioHorn)
 		gameState = GameState.PlayerScored
 	}
+}
+
+renderBall :: proc() {
+	rl.DrawCircleV(ball.position + ball.shadowOffset, ball.radius, ball.shadowColor)
+	rl.DrawCircleV(ball.position, ball.radius, ball.color)
 }
 
 

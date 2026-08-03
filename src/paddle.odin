@@ -3,10 +3,12 @@ package PaddleBattle
 import rl "vendor:raylib"
 
 Paddle :: struct {
-	size:     rl.Vector2,
-	position: rl.Vector2,
-	velocity: f32,
-	color:    rl.Color,
+	size:         rl.Vector2,
+	position:     rl.Vector2,
+	velocity:     f32,
+	color:        rl.Color,
+	shadowColor:  rl.Color,
+	shadowOffset: rl.Vector2,
 }
 
 normalPaddle: rl.Vector2 = {20, 100}
@@ -15,17 +17,21 @@ initPaddles :: proc() {
 	startPosY = (gameScreenHeight * 0.5) - (normalPaddle.y * 0.5)
 
 	paddle_l := Paddle {
-		size     = {20, 100},
-		position = {10, startPosY},
-		velocity = paddle_velocity,
-		color    = {0, 0, 255, 255},
+		size         = {20, 100},
+		position     = {10, startPosY},
+		velocity     = paddle_velocity,
+		color        = {0, 0, 255, 255},
+		shadowColor  = {0, 0, 0, 255},
+		shadowOffset = {3, 3},
 	}
 
 	paddle_r := Paddle {
-		position = {gameScreenWidth - 30, startPosY},
-		size     = {20, 100},
-		velocity = paddle_velocity,
-		color    = {255, 0, 0, 255},
+		position     = {gameScreenWidth - 30, startPosY},
+		size         = {20, 100},
+		velocity     = paddle_velocity,
+		color        = {255, 0, 0, 255},
+		shadowColor  = {0, 0, 0, 255},
+		shadowOffset = {3, 3},
 	}
 
 	paddles[player1] = paddle_l
@@ -85,6 +91,11 @@ updatePaddles :: proc(dt: f32) {
 
 renderPaddles :: proc() {
 	for playerPaddle in paddles {
+		rl.DrawRectangleV(
+			playerPaddle.position + playerPaddle.shadowOffset,
+			playerPaddle.size,
+			playerPaddle.shadowColor,
+		)
 		rl.DrawRectangleV(playerPaddle.position, playerPaddle.size, playerPaddle.color)
 	}
 }

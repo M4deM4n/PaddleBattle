@@ -4,6 +4,7 @@ import "core:c"
 import "core:fmt"
 import rl "vendor:raylib"
 
+
 updateGameInput :: proc(dt: f32) {
 	if rl.IsKeyPressed(.ESCAPE) {
 		gameState = GameState.MainMenu
@@ -17,6 +18,10 @@ updateGameInput :: proc(dt: f32) {
 		cycleBackground()
 	}
 
+	if rl.IsKeyPressed(.EQUAL) {
+		nextTrack()
+	}
+
 	// debug
 	if rl.IsKeyReleased(.SPACE) {
 		resetMatch()
@@ -25,11 +30,11 @@ updateGameInput :: proc(dt: f32) {
 
 GameUpdate :: proc(dt: f32) {
 
-	if !rl.IsMusicStreamPlaying(music) {
-		rl.PlayMusicStream(music)
+	if !rl.IsMusicStreamPlaying(music[currentSong]) {
+		rl.PlayMusicStream(music[currentSong])
 	}
 
-	rl.UpdateMusicStream(music)
+	rl.UpdateMusicStream(music[currentSong])
 
 	// GameShaderUpdate(dt)
 	updateBackground(dt)
@@ -53,6 +58,6 @@ GameRender :: proc() {
 
 	renderPaddles()
 
-	rl.DrawCircleV(ball.position, ball.radius, ball.color)
+	renderBall()
 	// renderPowerUp()
 }

@@ -38,7 +38,7 @@ MainMenuInput :: proc() {
 		}
 
 		gameState = GameState.MatchBegin
-		rl.StopMusicStream(music)
+		rl.StopMusicStream(music[currentSong])
 	}
 
 	// bounds checks

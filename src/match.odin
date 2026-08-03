@@ -15,7 +15,7 @@ MatchState :: struct {
 
 currentMatch: MatchState = MatchState{}
 announceSpeed: bool = true
-scoreColor: rl.Color = rl.DARKBLUE
+scoreColor: rl.Color = rl.LIGHTGRAY
 currentScoreColor: rl.Color = {0, 0, 96, 255}
 
 updateMatch :: proc(dt: f32) {
@@ -53,11 +53,13 @@ resetMatch :: proc() {
 
 	resetPaddles()
 	resetBall()
+	resetBackground()
 	gameState = GameState.MatchBegin
 }
 
 renderRallyPoints :: proc() {
 	position := rl.Vector2{gameScreenWidth * 0.5, 50}
 
+	renderText(position + {3.0, 3.0}, fmt.caprintf("%i", currentMatch.rallyScore), 72, rl.BLACK)
 	renderText(position, fmt.caprintf("%i", currentMatch.rallyScore), 72, currentScoreColor)
 }
