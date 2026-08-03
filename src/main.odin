@@ -1,6 +1,7 @@
 package PaddleBattle
 
 import "core:c"
+import "core:os"
 import rl "vendor:raylib"
 
 WINDOW_WIDTH :: 1920
@@ -29,6 +30,7 @@ main :: proc() {
 	defer rl.UnloadTexture(studioTexture)
 
 	init(GameState.Intro)
+
 	initFont()
 	defer rl.UnloadFont(gameFont.font)
 
