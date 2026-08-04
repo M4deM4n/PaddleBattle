@@ -7,6 +7,7 @@ Paddle :: struct {
 	position:     rl.Vector2,
 	velocity:     f32,
 	color:        rl.Color,
+	baseColor:    rl.Color,
 	shadowColor:  rl.Color,
 	shadowOffset: rl.Vector2,
 }
@@ -21,6 +22,7 @@ initPaddles :: proc() {
 		position     = {10, startPosY},
 		velocity     = paddle_velocity,
 		color        = {0, 0, 255, 255},
+		baseColor    = {0, 0, 255, 255},
 		shadowColor  = {0, 0, 0, 255},
 		shadowOffset = {3, 3},
 	}
@@ -30,6 +32,7 @@ initPaddles :: proc() {
 		size         = {20, 100},
 		velocity     = paddle_velocity,
 		color        = {255, 0, 0, 255},
+		baseColor    = {255, 0, 0, 255},
 		shadowColor  = {0, 0, 0, 255},
 		shadowOffset = {3, 3},
 	}
@@ -73,11 +76,11 @@ updatePaddles :: proc(dt: f32) {
 	// clamp paddles so they stay on screen
 	for i in 0 ..= 1 {
 		if i == 0 {
-			paddles[i].color = rl.ColorLerp(paddles[i].color, rl.BLUE, dt)
+			paddles[i].color = rl.ColorLerp(paddles[i].color, paddles[i].baseColor, dt)
 		}
 
 		if i == 1 {
-			paddles[i].color = rl.ColorLerp(paddles[i].color, rl.RED, dt)
+			paddles[i].color = rl.ColorLerp(paddles[i].color, paddles[i].baseColor, dt)
 		}
 
 

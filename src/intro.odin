@@ -51,7 +51,7 @@ IntroRender :: proc() {
 
 	renderText(
 		{gameScreenWidth * 0.5, gameScreenHeight * 0.5 + 200},
-		"SNG Studios",
+		"Shits N Giggles",
 		72,
 		introTextColor,
 	)

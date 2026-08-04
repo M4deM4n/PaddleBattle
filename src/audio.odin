@@ -12,6 +12,7 @@ audioHorn: rl.Sound
 audioSpeedingUp: rl.Sound
 announcerGoal: [12]rl.Sound
 announcerRally: [11]rl.Sound
+titleMusic: rl.Music
 music: [2]rl.Music
 currentSong: i32 = 1
 
@@ -25,6 +26,7 @@ initAudio :: proc() {
 	audioHorn = rl.LoadSound("../res/sfx/horn.ogg")
 	audioSpeedingUp = rl.LoadSound("../res/sfx/announcer/speedingup.mp3")
 
+	titleMusic = rl.LoadMusicStream("../res/sfx/music/fcountdown.ogg")
 	music[0] = rl.LoadMusicStream("../res/sfx/music/eyeofthetiger.ogg")
 	music[1] = rl.LoadMusicStream("../res/sfx/music/heartsonfire.ogg")
 	currentSong = 0
@@ -78,4 +80,5 @@ unloadAudio :: proc() {
 		rl.UnloadMusicStream(song)
 	}
 
+	rl.UnloadMusicStream(titleMusic)
 }

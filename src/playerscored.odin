@@ -18,10 +18,12 @@ PlayerScoredInput :: proc() {
 		dialogDelayTimer = 0
 		gameState = GameState.MatchBegin
 		rl.StopMusicStream(music[currentSong])
+		clearParticles()
 	}
 }
 
 PlayerScoredUpdate :: proc(dt: f32) {
+	fireworksTimer += dt
 	dialogDelayTimer += dt
 
 	if rl.IsMusicStreamPlaying(music[currentSong]) {
@@ -32,9 +34,37 @@ PlayerScoredUpdate :: proc(dt: f32) {
 		rl.PlaySound(rand.choice(announcerGoal[:]))
 		announceScoreDialog = false
 	}
+
+	if fireworksTimer >= fireworksDelay {
+		rl.PlaySound(audioBallImpact)
+		spawnBurst(
+			origin = {
+				f32(rand.int_range(0, int(gameScreenWidth))),
+				f32(rand.int_range(0, int(gameScreenHeight))),
+			},
+			count = 75,
+			color = rand.choice(fireworksColor[:]),
+			speed = 300,
+			life = 3,
+			size = 7,
+		)
+		fireworksDelay = rand.float32_range(0.5, 2)
+		fireworksTimer = 0
+	}
+
+	updateBackground(dt)
+	updateParticles(dt)
 	PlayerScoredInput()
 }
 
 PlayerScoredRender :: proc() {
+	renderBackground()
+	renderParticles()
+	renderText(
+		{(gameScreenWidth * 0.5) + 3, (gameScreenHeight * 0.5) + 3},
+		"SCORE!!!",
+		142,
+		rl.BLACK,
+	)
 	renderText({gameScreenWidth * 0.5, gameScreenHeight * 0.5}, "SCORE!!!", 142, rl.WHITE)
 }

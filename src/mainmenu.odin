@@ -1,5 +1,6 @@
 package PaddleBattle
 
+import "core:math/rand"
 import rl "vendor:raylib"
 
 SINGLE_PLAYER :: "Single Player"
@@ -10,6 +11,9 @@ selectedOption: int
 selectedColor: rl.Color = rl.YELLOW
 
 MainMenuLoaded: bool = false
+fireworksTimer: f32
+fireworksDelay: f32 = 1
+fireworksColor: [2]rl.Color = [2]rl.Color{{0, 0, 255, 255}, {255, 0, 0, 255}}
 
 MainMenuInput :: proc() {
 	if rl.IsKeyPressed(.ESCAPE) {
@@ -37,8 +41,12 @@ MainMenuInput :: proc() {
 			gameMode = GameMode.Multiplayer
 		}
 
-		gameState = GameState.MatchBegin
+		clearParticles()
+
 		rl.StopMusicStream(music[currentSong])
+		rl.StopMusicStream(titleMusic)
+		gameState = GameState.MatchBegin
+
 	}
 
 	// bounds checks
@@ -52,16 +60,44 @@ MainMenuInput :: proc() {
 }
 
 MainMenuUpdate :: proc(dt: f32) {
+	fireworksTimer += dt
+
+	if !rl.IsMusicStreamPlaying(titleMusic) {
+		rl.PlayMusicStream(titleMusic)
+	}
+
+	rl.UpdateMusicStream(titleMusic)
+
 	if !rl.IsSoundPlaying(audioTitle) && !MainMenuLoaded {
 		MainMenuLoaded = true
 		rl.PlaySound(audioTitle)
 		// rl.PlayMusicStream(music)
 	}
+
+	if fireworksTimer >= fireworksDelay {
+		rl.PlaySound(audioBallImpact)
+		spawnBurst(
+			origin = {
+				f32(rand.int_range(0, int(gameScreenWidth))),
+				f32(rand.int_range(0, int(gameScreenHeight))),
+			},
+			count = 75,
+			color = rand.choice(fireworksColor[:]),
+			speed = 300,
+			life = 3,
+			size = 7,
+		)
+		fireworksDelay = rand.float32_range(0.5, 2)
+		fireworksTimer = 0
+	}
+
 	// rl.UpdateMusicStream(music)
+	updateParticles(dt)
 	MainMenuInput()
 }
 
 MainMenuRender :: proc() {
+	renderParticles()
 	renderText(
 		{gameScreenWidth * 0.5, (gameScreenHeight * 0.5) - 300},
 		"PADDLE BATTLE",

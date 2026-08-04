@@ -19,7 +19,7 @@ scoreColor: rl.Color = rl.LIGHTGRAY
 currentScoreColor: rl.Color = {0, 0, 96, 255}
 
 updateMatch :: proc(dt: f32) {
-	currentScoreColor = rl.ColorLerp(currentScoreColor, scoreColor, dt)
+	currentScoreColor = rl.ColorLerp(currentScoreColor, scoreColor, dt * 0.5)
 }
 
 updateRally :: proc() {
@@ -54,6 +54,7 @@ resetMatch :: proc() {
 	resetPaddles()
 	resetBall()
 	resetBackground()
+	clearParticles()
 	gameState = GameState.MatchBegin
 }
 

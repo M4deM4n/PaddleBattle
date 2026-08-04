@@ -66,6 +66,15 @@ updateBall :: proc(dt: f32) {
 
 				// ball.velocity *= -1
 				ball.velocity = calculateNewVelocity(playerPaddle)
+				spawnBurst(
+					origin = ball.position,
+					count = 24,
+					color = rl.ColorLerp(playerPaddle.baseColor, rl.WHITE, 0.8),
+					force = ball.velocity * 0.4, // lean the whole burst along the new ball vector
+					speed = 300,
+					life = 0.6,
+					size = 5,
+				)
 			}
 
 		} else {
@@ -92,6 +101,15 @@ updateBall :: proc(dt: f32) {
 
 				ball.velocity = calculateNewVelocity(playerPaddle)
 
+				spawnBurst(
+					origin = ball.position,
+					count = 24,
+					color = rl.ColorLerp(playerPaddle.baseColor, rl.WHITE, 0.8),
+					force = ball.velocity * 0.4, // lean the whole burst along the new ball vector
+					speed = 300,
+					life = 0.6,
+					size = 5,
+				)
 
 			}
 		}
@@ -110,6 +128,7 @@ updateBall :: proc(dt: f32) {
 	if ball.position.x > gameScreenWidth || ball.position.x < 0 {
 		rl.PlaySound(audioHorn)
 		gameState = GameState.PlayerScored
+		ball.position = {gameScreenWidth * 0.5, gameScreenHeight * 0.5}
 	}
 }
 

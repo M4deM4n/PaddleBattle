@@ -47,6 +47,7 @@ GameUpdate :: proc(dt: f32) {
 	updateMatch(dt)
 	updateGameInput(dt)
 	updatePaddles(dt)
+	updateParticles(dt)
 	updateBall(dt)
 }
 
@@ -57,7 +58,7 @@ GameRender :: proc() {
 	// rl.DrawCircleV(powerUp.position, powerUp.radius, rl.YELLOW)
 
 	renderPaddles()
-
+	renderParticles()
 	renderBall()
 	// renderPowerUp()
 }

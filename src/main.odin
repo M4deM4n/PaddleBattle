@@ -19,6 +19,11 @@ main :: proc() {
 
 	rl.SetConfigFlags({.WINDOW_RESIZABLE, .VSYNC_HINT, .BORDERLESS_WINDOWED_MODE})
 	rl.InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "PaddleBattle")
+
+	mw := rl.GetMonitorWidth(0)
+	mh := rl.GetMonitorHeight(0)
+	rl.SetWindowPosition((mw - WINDOW_WIDTH) / 2, (mh - WINDOW_HEIGHT) / 2)
+
 	rl.SetExitKey(.KEY_NULL)
 	rl.SetWindowMinSize(640, 360) // 16:9 aspect ratio
 	rl.SetTargetFPS(500)
