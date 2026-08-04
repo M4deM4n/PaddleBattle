@@ -96,4 +96,5 @@ void main() {
     }
 
     finalColor = vec4(color, 1.0);
+    finalColor.rgb *= (mod(gl_FragCoord.y, 2.0) < 1.0) ? 0.15 : 1.0;
 }

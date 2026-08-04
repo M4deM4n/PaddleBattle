@@ -44,4 +44,5 @@ void main() {
     vec3 col = t * u_hexColor - 0.1 * t2 + (1.0 - t) * u_bgColor;
     col = pow(col, vec3(1.0) / 2.2);
     finalColor = vec4(col, 1.0);
+    finalColor.rgb *= (mod(gl_FragCoord.y, 2.0) < 1.0) ? 0.15 : 1.0;
 }

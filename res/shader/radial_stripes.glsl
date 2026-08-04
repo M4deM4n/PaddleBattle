@@ -45,6 +45,8 @@ void main() {
     float ab = 32.0 * stripe / stripeWidth * variance * d * t;
     // float ab = 32.0 * stripe / stripeWidth * d * t;
     vec3 stripeColor = mix(u_stripeColorA, u_stripeColorB, ab);
+    // vec4 final = vec4(mix(stripeColor, u_highlightColor, stripe), 1.0);
 
     finalColor = vec4(mix(stripeColor, u_highlightColor, stripe), 1.0);
+    finalColor.rgb *= (mod(gl_FragCoord.y, 2.0) < 1.0) ? 0.15 : 1.0;
 }
