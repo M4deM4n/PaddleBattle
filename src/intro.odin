@@ -5,6 +5,7 @@ import rl "vendor:raylib"
 
 introAlpha: f32 = 0.0
 introTextColor: rl.Color = rl.BLACK
+introShadowColor: rl.Color = rl.BLACK
 introTextureColor: rl.Color = rl.WHITE
 introTimer: f32
 introSoundPlayed: bool
@@ -39,6 +40,7 @@ IntroRender :: proc() {
 	rl.BeginBlendMode(.ALPHA)
 	introTextureColor = rl.Fade(rl.WHITE, introAlpha)
 	introTextColor = rl.Fade(rl.BLACK, introAlpha)
+	// introShadowColor = rl.Fade(rl.BLACK, introAlpha)
 
 
 	rl.DrawTexture(
@@ -49,6 +51,12 @@ IntroRender :: proc() {
 	)
 	rl.EndBlendMode()
 
+	// renderText(
+	// 	{(gameScreenWidth * 0.5) + 3, gameScreenHeight * 0.5 + 203},
+	// 	"Shits N Giggles",
+	// 	72,
+	// 	introShadowColor,
+	// )
 	renderText(
 		{gameScreenWidth * 0.5, gameScreenHeight * 0.5 + 200},
 		"Shits N Giggles",

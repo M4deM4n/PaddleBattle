@@ -69,11 +69,11 @@ updateBall :: proc(dt: f32) {
 				spawnBurst(
 					origin = ball.position,
 					count = 24,
-					color = rl.ColorLerp(playerPaddle.baseColor, rl.WHITE, 0.8),
+					color = rl.ColorLerp(playerPaddle.baseColor, rl.WHITE, 0.25),
 					force = ball.velocity * 0.4, // lean the whole burst along the new ball vector
 					speed = 300,
 					life = 0.6,
-					size = 5,
+					size = 10,
 				)
 			}
 
@@ -104,11 +104,11 @@ updateBall :: proc(dt: f32) {
 				spawnBurst(
 					origin = ball.position,
 					count = 24,
-					color = rl.ColorLerp(playerPaddle.baseColor, rl.WHITE, 0.8),
+					color = rl.ColorLerp(playerPaddle.baseColor, rl.WHITE, 0.25),
 					force = ball.velocity * 0.4, // lean the whole burst along the new ball vector
 					speed = 300,
 					life = 0.6,
-					size = 5,
+					size = 10,
 				)
 
 			}

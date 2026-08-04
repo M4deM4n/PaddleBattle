@@ -37,17 +37,19 @@ PlayerScoredUpdate :: proc(dt: f32) {
 
 	if fireworksTimer >= fireworksDelay {
 		rl.PlaySound(audioBallImpact)
+		o := rl.Vector2 {
+			f32(rand.int_range(0, int(gameScreenWidth))),
+			f32(rand.int_range(0, int(gameScreenHeight))),
+		}
 		spawnBurst(
-			origin = {
-				f32(rand.int_range(0, int(gameScreenWidth))),
-				f32(rand.int_range(0, int(gameScreenHeight))),
-			},
+			origin = o,
 			count = 75,
 			color = rand.choice(fireworksColor[:]),
 			speed = 300,
 			life = 3,
-			size = 7,
+			size = 14,
 		)
+		spawnBurst(origin = o, count = 35, color = rl.WHITE, speed = 150, life = 1.5, size = 7)
 		fireworksDelay = rand.float32_range(0.5, 2)
 		fireworksTimer = 0
 	}
