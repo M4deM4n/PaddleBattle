@@ -1,5 +1,6 @@
-package PaddleBattle
+package MatchBackground
 
+import "../gameTypes"
 import "core:c"
 import "core:fmt"
 import rl "vendor:raylib"
@@ -20,11 +21,11 @@ HexScrollData :: struct {
 	paddle2Color: [3]f32,
 }
 
-makeHexScrollBackground :: proc() -> Background {
+makeHexScrollBackground :: proc(game: ^gameTypes.Game) -> Background {
 	bg: Background
 	bg.id = .HexScroll
 	bg.name = "Hex Scroll"
-	bg.shader = rl.LoadShaderFromMemory(nil, #load("../res/shader/hex_scroll.glsl", cstring))
+	bg.shader = rl.LoadShaderFromMemory(nil, #load("../../res/shader/hex_scroll.glsl", cstring))
 
 	d := new(HexScrollData)
 	d.locTime = rl.GetShaderLocation(bg.shader, "u_time")
@@ -34,8 +35,8 @@ makeHexScrollBackground :: proc() -> Background {
 	d.hexColor = {0.0, 0.0, 0.18}
 	d.curHexColor = {0.0, 0.0, 0.18}
 	d.bgColor = {0.0, 0.0, 0.0}
-	d.paddle1Color = rl.ColorNormalize(paddles[0].color).xyz
-	d.paddle2Color = rl.ColorNormalize(paddles[1].color).xyz
+	d.paddle1Color = rl.ColorNormalize(game.paddles[0].color).xyz
+	d.paddle2Color = rl.ColorNormalize(game.paddles[1].color).xyz
 
 	bg.data = d
 	bg.update = hexScrollUpdate
@@ -43,13 +44,13 @@ makeHexScrollBackground :: proc() -> Background {
 	return bg
 }
 
-hexScrollUpdate :: proc(bg: ^Background, dt: f32) {
+hexScrollUpdate :: proc(game: ^gameTypes.Game, bg: ^Background, dt: f32) {
 	d := cast(^HexScrollData)bg.data
 	t := f32(rl.GetTime())
-	res := [2]f32{gameScreenWidth, gameScreenHeight}
+	res := game.screen
 
 	d.lastBallDir = d.curBallDir
-	d.curBallDir = (ball.velocity.x > 0 ? 1 : -1)
+	d.curBallDir = (game.ball.velocity.x > 0 ? 1 : -1)
 
 	if d.lastBallDir != 0 && d.lastBallDir != d.curBallDir {
 		d.hexColor = d.curBallDir > 0 ? d.paddle1Color : d.paddle2Color
@@ -68,5 +69,5 @@ hexScrollUpdate :: proc(bg: ^Background, dt: f32) {
 	rl.SetShaderValue(bg.shader, d.locHexColor, &d.curHexColor, .VEC3)
 	rl.SetShaderValue(bg.shader, d.locBgColor, &d.bgColor, .VEC3)
 
-	ball.color = rl.WHITE
+	game.ball.color = rl.WHITE
 }

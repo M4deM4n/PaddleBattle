@@ -1,5 +1,6 @@
-package PaddleBattle
+package MatchBackground
 
+import "../gameTypes"
 import rl "vendor:raylib"
 
 BackgroundID :: enum {
@@ -14,20 +15,22 @@ Background :: struct {
 	name:    cstring,
 	shader:  rl.Shader,
 	data:    rawptr,
-	reset:   proc(bg: ^Background),
-	update:  proc(bg: ^Background, dt: f32),
-	render:  proc(bg: ^Background),
+	reset:   proc(game: ^gameTypes.Game, bg: ^Background),
+	update:  proc(game: ^gameTypes.Game, bg: ^Background, dt: f32),
+	render:  proc(game: ^gameTypes.Game, bg: ^Background),
 	destroy: proc(bg: ^Background),
 }
 
 backgrounds: [BackgroundID]Background
 currentBgID: BackgroundID = .HexScroll
+gameScreenWidth: f32 = 1920
+gameScreenHeight: f32 = 1080
 
-initBackgrounds :: proc() {
-	backgrounds[.GridDistort] = makeGridDistortBackground()
-	backgrounds[.StarfieldSquares] = makeStarfieldSquaresBackground()
-	backgrounds[.HexScroll] = makeHexScrollBackground()
-	backgrounds[.RadialStripes] = makeRadialStripesBackground()
+initBackgrounds :: proc(game: ^gameTypes.Game) {
+	backgrounds[.GridDistort] = makeGridDistortBackground(game)
+	backgrounds[.StarfieldSquares] = makeStarfieldSquaresBackground(game)
+	backgrounds[.HexScroll] = makeHexScrollBackground(game)
+	backgrounds[.RadialStripes] = makeRadialStripesBackground(game)
 }
 
 setBackground :: proc(id: BackgroundID) {
@@ -40,20 +43,20 @@ cycleBackground :: proc() {
 	currentBgID = BackgroundID(next)
 }
 
-resetBackground :: proc() {
+resetBackground :: proc(game: ^gameTypes.Game) {
 	bg := &backgrounds[currentBgID]
-	if bg.reset != nil do bg.reset(bg)
+	if bg.reset != nil do bg.reset(game, bg)
 }
 
-updateBackground :: proc(dt: f32) {
+updateBackground :: proc(game: ^gameTypes.Game, dt: f32) {
 	bg := &backgrounds[currentBgID]
-	if bg.update != nil do bg.update(bg, dt)
+	if bg.update != nil do bg.update(game, bg, dt)
 }
 
-renderBackground :: proc() {
+renderBackground :: proc(game: ^gameTypes.Game) {
 	bg := &backgrounds[currentBgID]
 	if bg.render != nil {
-		bg.render(bg)
+		bg.render(game, bg)
 	} else {
 		rl.BeginShaderMode(bg.shader)
 		rl.DrawRectangle(0, 0, i32(gameScreenWidth), i32(gameScreenHeight), rl.WHITE)

@@ -2,20 +2,13 @@ package PaddleBattle
 
 import "core:fmt"
 import "core:math"
+import "gameTypes"
+import "particleSystem"
 import rl "vendor:raylib"
 
-Ball :: struct {
-	position:     rl.Vector2,
-	velocity:     rl.Vector2,
-	radius:       f32,
-	color:        rl.Color,
-	shadowColor:  rl.Color,
-	shadowOffset: rl.Vector2,
-}
 
 collissionTimer: f32
 ignoreCollission: bool
-ballspeed: f32
 
 lastBallPosition: rl.Vector2
 nextBallPosition: rl.Vector2
@@ -23,10 +16,10 @@ hitPoint: rl.Vector2
 
 paddleRect: rl.Rectangle
 
-initBall :: proc() {
-	ball = Ball {
-		position     = {gameScreenWidth * 0.5, gameScreenHeight * 0.5},
-		velocity     = {ballspeed, ballspeed},
+initBall :: proc(game: ^gameTypes.Game) {
+	game.ball = gameTypes.Ball {
+		position     = {game.screen.x * 0.5, game.screen.y * 0.5},
+		velocity     = {currentMatch.ballSpeed, currentMatch.ballSpeed},
 		radius       = 10,
 		color        = {0, 0, 0, 255},
 		shadowColor  = {0, 0, 0, 255},
@@ -34,19 +27,21 @@ initBall :: proc() {
 	}
 }
 
-resetBall :: proc() {
-	ballspeed = 550
-	ball.position = {gameScreenWidth * 0.5, gameScreenHeight * 0.5}
-	ball.velocity = rl.Vector2Normalize(ball.velocity) * ballspeed
+resetBall :: proc(game: ^gameTypes.Game) {
+	currentMatch.currentBallSpeed = currentMatch.ballSpeed
+	game.ball.position = game.centerScreen
+	game.ball.velocity = rl.Vector2Normalize(game.ball.velocity) * currentMatch.currentBallSpeed
 }
 
-updateBall :: proc(dt: f32) {
-	lastBallPosition = ball.position
-	nextBallPosition = ball.position + ((rl.Vector2Normalize(ball.velocity) * ballspeed) * dt)
+updateBall :: proc(game: ^gameTypes.Game, dt: f32) {
+	lastBallPosition = game.ball.position
+	nextBallPosition =
+		game.ball.position +
+		((rl.Vector2Normalize(game.ball.velocity) * currentMatch.currentBallSpeed) * dt)
 
 	dist := math.abs(lastBallPosition.x - nextBallPosition.x)
 
-	for &playerPaddle in paddles {
+	for &playerPaddle in game.paddles {
 		paddleRect = {
 			playerPaddle.position.x,
 			playerPaddle.position.y,
@@ -54,23 +49,29 @@ updateBall :: proc(dt: f32) {
 			playerPaddle.size.y,
 		}
 
-		if dist >= ball.radius * 2 {
-			if CheckCollisionLineRect(lastBallPosition, nextBallPosition, paddleRect, &hitPoint) {
+		if dist >= game.ball.radius * 2 {
+			if CheckCollisionLineRect(
+				game,
+				lastBallPosition,
+				nextBallPosition,
+				paddleRect,
+				&hitPoint,
+			) {
 				rl.PlaySound(audioBallImpact)
-				ball.position = hitPoint
+				game.ball.position = hitPoint
 
 				// increase ball velocity
-				ballspeed += 50
+				currentMatch.currentBallSpeed += currentMatch.ballAcceleration
 
 				updateRally()
 
 				// ball.velocity *= -1
-				ball.velocity = calculateNewVelocity(playerPaddle)
-				spawnBurst(
-					origin = ball.position,
+				game.ball.velocity = calculateNewVelocity(game, playerPaddle)
+				particleSystem.spawnBurst(
+					origin = game.ball.position,
 					count = 24,
 					color = rl.ColorLerp(playerPaddle.baseColor, rl.WHITE, 0.25),
-					force = ball.velocity * 0.4, // lean the whole burst along the new ball vector
+					force = game.ball.velocity * 0.4, // lean the whole burst along the new ball vector
 					speed = 300,
 					life = 0.6,
 					size = 10,
@@ -79,33 +80,35 @@ updateBall :: proc(dt: f32) {
 
 		} else {
 
-			if rl.CheckCollisionCircleRec(ball.position, ball.radius, paddleRect) {
+			if rl.CheckCollisionCircleRec(game.ball.position, game.ball.radius, paddleRect) {
 				playerPaddle.color = rl.WHITE
 
 				rl.PlaySound(audioBallImpact)
-				ballspeed += 50
+
+				currentMatch.currentBallSpeed += currentMatch.ballAcceleration
+
 				updateRally()
 
-				if ball.velocity.x < 0 {
+				if game.ball.velocity.x < 0 {
 					paddleEdgeX := playerPaddle.position.x + (playerPaddle.size.x * 0.5)
-					if ball.position.x < paddleEdgeX {
-						ball.position.x = paddleEdgeX + ball.radius
+					if game.ball.position.x < paddleEdgeX {
+						game.ball.position.x = paddleEdgeX + game.ball.radius
 					}
 
 				} else {
 					paddleEdgeX := playerPaddle.position.x - (playerPaddle.size.x * 0.5)
-					if ball.position.x > paddleEdgeX {
-						ball.position.x = paddleEdgeX - ball.radius
+					if game.ball.position.x > paddleEdgeX {
+						game.ball.position.x = paddleEdgeX - game.ball.radius
 					}
 				}
 
-				ball.velocity = calculateNewVelocity(playerPaddle)
+				game.ball.velocity = calculateNewVelocity(game, playerPaddle)
 
-				spawnBurst(
-					origin = ball.position,
+				particleSystem.spawnBurst(
+					origin = game.ball.position,
 					count = 24,
 					color = rl.ColorLerp(playerPaddle.baseColor, rl.WHITE, 0.25),
-					force = ball.velocity * 0.4, // lean the whole burst along the new ball vector
+					force = game.ball.velocity * 0.4, // lean the whole burst along the new ball vector
 					speed = 300,
 					life = 0.6,
 					size = 10,
@@ -117,30 +120,51 @@ updateBall :: proc(dt: f32) {
 
 	}
 
-	ball.position += (rl.Vector2Normalize(ball.velocity) * ballspeed) * dt
+	game.ball.position +=
+		(rl.Vector2Normalize(game.ball.velocity) * currentMatch.currentBallSpeed) * dt
 
 
 	// top constraint
-	if ball.position.y >= gameScreenHeight - ball.radius || ball.position.y <= 0 + ball.radius {
-		ball.velocity.y *= -1
+	if game.ball.position.y >= game.screen.y - game.ball.radius ||
+	   game.ball.position.y <= 0 + game.ball.radius {
+		game.ball.velocity.y *= -1
 	}
 
-	if ball.position.x > gameScreenWidth || ball.position.x < 0 {
+	if game.ball.position.x > game.screen.x || game.ball.position.x < 0 {
 		rl.PlaySound(audioHorn)
-		gameState = GameState.PlayerScored
-		ball.position = {gameScreenWidth * 0.5, gameScreenHeight * 0.5}
+
+		if game.ball.position.x > game.screen.x {
+			currentMatch.p1Score += currentMatch.rallyScore
+			currentMatch.p1Goals += 1
+		}
+
+		if game.ball.position.x < 0 {
+			currentMatch.p2Score += currentMatch.rallyScore
+			currentMatch.p2Goals += 1
+		}
+
+		fmt.println("score", currentMatch.p1Score, currentMatch.p2Score)
+		fmt.println("goals", currentMatch.p1Goals, currentMatch.p2Goals)
+
+		game.state = .PlayerScored
+		game.ball.position = game.centerScreen
 	}
 }
 
-renderBall :: proc() {
-	rl.DrawCircleV(ball.position + ball.shadowOffset, ball.radius, ball.shadowColor)
-	rl.DrawCircleV(ball.position, ball.radius, ball.color)
+renderBall :: proc(game: ^gameTypes.Game) {
+	rl.DrawCircleV(
+		game.ball.position + game.ball.shadowOffset,
+		game.ball.radius,
+		game.ball.shadowColor,
+	)
+	rl.DrawCircleV(game.ball.position, game.ball.radius, game.ball.color)
 }
 
 
 // CheckCollisionLineRect checks if a line segment intersects with any edge of a rectangle.
 // It returns true if a collision occurs and optionally outputs the first collision point found.
 CheckCollisionLineRect :: proc(
+	game: ^gameTypes.Game,
 	line_start, line_end: rl.Vector2,
 	rec: rl.Rectangle,
 	collision_point: ^rl.Vector2,
@@ -180,10 +204,10 @@ CheckCollisionLineRect :: proc(
 
 
 	if rl.CheckCollisionLines(line_start, line_end, right_start, right_end, out_point) {
-		if ball.velocity.x < 0 {
-			out_point.x += ball.radius
+		if game.ball.velocity.x < 0 {
+			out_point.x += game.ball.radius
 		} else {
-			out_point.x -= ball.radius + (rec.width * 0.5)
+			out_point.x -= game.ball.radius + (rec.width * 0.5)
 		}
 
 		return true
@@ -196,10 +220,10 @@ CheckCollisionLineRect :: proc(
 
 
 	if rl.CheckCollisionLines(line_start, line_end, left_start, left_end, out_point) {
-		if ball.velocity.x < 0 {
-			out_point.x += ball.radius + (rec.width * 0.5)
+		if game.ball.velocity.x < 0 {
+			out_point.x += game.ball.radius + (rec.width * 0.5)
 		} else {
-			out_point.x -= ball.radius
+			out_point.x -= game.ball.radius
 		}
 		return true
 
@@ -210,18 +234,18 @@ CheckCollisionLineRect :: proc(
 }
 
 
-calculateNewVelocity :: proc(playerPaddle: Paddle) -> rl.Vector2 {
+calculateNewVelocity :: proc(game: ^gameTypes.Game, playerPaddle: gameTypes.Paddle) -> rl.Vector2 {
 	reflectDirection :=
-		ball.position -
+		game.ball.position -
 		{playerPaddle.position.x, playerPaddle.position.y + (playerPaddle.size.y * 0.5)}
 
 	newVelocity :=
 		rl.Vector2Normalize(
-			(rl.Vector2{ball.velocity.x * -1, ball.velocity.y} +
+			(rl.Vector2{game.ball.velocity.x * -1, game.ball.velocity.y} +
 				reflectDirection +
 				{reflectDirection.x, 0}),
 		) *
-		ballspeed
+		currentMatch.currentBallSpeed
 
 	return newVelocity
 }

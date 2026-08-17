@@ -1,5 +1,6 @@
 package PaddleBattle
 
+import "gameTypes"
 import rl "vendor:raylib"
 
 Paddle :: struct {
@@ -14,10 +15,10 @@ Paddle :: struct {
 
 normalPaddle: rl.Vector2 = {20, 100}
 
-initPaddles :: proc() {
-	startPosY = (gameScreenHeight * 0.5) - (normalPaddle.y * 0.5)
+initPaddles :: proc(game: ^gameTypes.Game) {
+	startPosY = (game.screen.y * 0.5) - (normalPaddle.y * 0.5)
 
-	paddle_l := Paddle {
+	paddle_l := gameTypes.Paddle {
 		size         = {20, 100},
 		position     = {10, startPosY},
 		velocity     = paddle_velocity,
@@ -27,8 +28,8 @@ initPaddles :: proc() {
 		shadowOffset = {3, 3},
 	}
 
-	paddle_r := Paddle {
-		position     = {gameScreenWidth - 30, startPosY},
+	paddle_r := gameTypes.Paddle {
+		position     = {game.screen.x - 30, startPosY},
 		size         = {20, 100},
 		velocity     = paddle_velocity,
 		color        = {255, 0, 0, 255},
@@ -37,63 +38,71 @@ initPaddles :: proc() {
 		shadowOffset = {3, 3},
 	}
 
-	paddles[player1] = paddle_l
-	paddles[player2] = paddle_r
+	game.paddles[player1] = paddle_l
+	game.paddles[player2] = paddle_r
 }
 
-resetPaddles :: proc() {
+resetPaddles :: proc(game: ^gameTypes.Game) {
 	for i in 0 ..= 1 {
-		paddles[i].position.y = startPosY
+		game.paddles[i].position.y = startPosY
 	}
 }
 
-updatePaddleInput :: proc(dt: f32) {
+updatePaddleInput :: proc(game: ^gameTypes.Game, dt: f32) {
 	// player 1
 	if rl.IsKeyDown(.W) {
-		paddles[player1].position.y -= paddles[player1].velocity * dt
+		game.paddles[player1].position.y -= game.paddles[player1].velocity * dt
 	}
 
 	if rl.IsKeyDown(.S) {
-		paddles[player1].position.y += paddles[player1].velocity * dt
+		game.paddles[player1].position.y += game.paddles[player1].velocity * dt
 	}
 
 	// player 2
-	if gameMode == GameMode.Multiplayer || gameMode == GameMode.MultiplayerTimed {
+	if game.mode == .Multiplayer || game.mode == .MultiplayerTimed {
 
 		if rl.IsKeyDown(.KP_8) {
-			paddles[player2].position.y -= paddles[player2].velocity * dt
+			game.paddles[player2].position.y -= game.paddles[player2].velocity * dt
 		}
 
 		if rl.IsKeyDown(.KP_5) {
-			paddles[player2].position.y += paddles[player2].velocity * dt
+			game.paddles[player2].position.y += game.paddles[player2].velocity * dt
 		}
 	}
 }
 
-updatePaddles :: proc(dt: f32) {
-	updatePaddleInput(dt)
+updatePaddles :: proc(game: ^gameTypes.Game, dt: f32) {
+	updatePaddleInput(game, dt)
 
 	// clamp paddles so they stay on screen
 	for i in 0 ..= 1 {
 		if i == 0 {
-			paddles[i].color = rl.ColorLerp(paddles[i].color, paddles[i].baseColor, dt)
+			game.paddles[i].color = rl.ColorLerp(
+				game.paddles[i].color,
+				game.paddles[i].baseColor,
+				dt,
+			)
 		}
 
 		if i == 1 {
-			paddles[i].color = rl.ColorLerp(paddles[i].color, paddles[i].baseColor, dt)
+			game.paddles[i].color = rl.ColorLerp(
+				game.paddles[i].color,
+				game.paddles[i].baseColor,
+				dt,
+			)
 		}
 
 
-		paddles[i].position.y = clamp(
-			paddles[i].position.y,
+		game.paddles[i].position.y = clamp(
+			game.paddles[i].position.y,
 			0,
-			gameScreenHeight - paddles[i].size.y,
+			game.screen.y - game.paddles[i].size.y,
 		)
 	}
 }
 
-renderPaddles :: proc() {
-	for playerPaddle in paddles {
+renderPaddles :: proc(game: ^gameTypes.Game) {
+	for playerPaddle in game.paddles {
 		rl.DrawRectangleV(
 			playerPaddle.position + playerPaddle.shadowOffset,
 			playerPaddle.size,

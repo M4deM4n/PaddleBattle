@@ -1,5 +1,7 @@
 package PaddleBattle
 
+import "gameTypes"
+import "matchBackground"
 import rl "vendor:raylib"
 
 matchBeginTimer: f32
@@ -8,7 +10,7 @@ matchCounterText: [4]cstring = {"3", "2", "1", "GO!"}
 matchBeginText: cstring
 announceMatch: bool = true
 
-MatchBeginUpdate :: proc(dt: f32) {
+MatchBeginUpdate :: proc(game: ^gameTypes.Game, dt: f32) {
 	matchBeginTimer += dt
 
 	if !rl.IsSoundPlaying(audioStartMatch) && announceMatch {
@@ -30,25 +32,13 @@ MatchBeginUpdate :: proc(dt: f32) {
 	if matchCounterIndex >= len(matchCounterText) {
 		announceMatch = true
 		matchCounterIndex = 0
-		gameState = GameState.Playing
+		game.state = .Playing
 	}
 
-	updateBackground(dt)
+	matchBackground.updateBackground(game, dt)
 }
 
-MatchBeginRender :: proc() {
-	renderBackground()
-
-	renderText(
-		{(gameScreenWidth * 0.5) + 3, (gameScreenHeight * 0.5) + 3},
-		matchCounterText[matchCounterIndex],
-		72,
-		rl.BLACK,
-	)
-	renderText(
-		{gameScreenWidth * 0.5, gameScreenHeight * 0.5},
-		matchCounterText[matchCounterIndex],
-		72,
-		rl.WHITE,
-	)
+MatchBeginRender :: proc(game: ^gameTypes.Game) {
+	matchBackground.renderBackground(game)
+	renderText(game.centerScreen, matchCounterText[matchCounterIndex], 72, rl.WHITE, 3)
 }

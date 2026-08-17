@@ -2,12 +2,16 @@ package PaddleBattle
 
 import "core:c"
 import "core:fmt"
+import "gameTypes"
+import "matchBackground"
+import "particleSystem"
 import rl "vendor:raylib"
 
 
-updateGameInput :: proc(dt: f32) {
+updateGameInput :: proc(game: ^gameTypes.Game, dt: f32) {
 	if rl.IsKeyPressed(.ESCAPE) {
-		gameState = GameState.MainMenu
+		MainMenuLoaded = false
+		game.state = .MainMenu
 	}
 
 	if rl.IsKeyReleased(.F) {
@@ -15,7 +19,7 @@ updateGameInput :: proc(dt: f32) {
 	}
 
 	if rl.IsKeyPressed(.PERIOD) {
-		cycleBackground()
+		matchBackground.cycleBackground()
 	}
 
 	if rl.IsKeyPressed(.EQUAL) {
@@ -24,11 +28,11 @@ updateGameInput :: proc(dt: f32) {
 
 	// debug
 	if rl.IsKeyReleased(.SPACE) {
-		resetMatch()
+		matchBackground.resetBackground(game)
 	}
 }
 
-GameUpdate :: proc(dt: f32) {
+GameUpdate :: proc(game: ^gameTypes.Game, dt: f32) {
 
 	if !rl.IsMusicStreamPlaying(music[currentSong]) {
 		rl.PlayMusicStream(music[currentSong])
@@ -37,28 +41,33 @@ GameUpdate :: proc(dt: f32) {
 	rl.UpdateMusicStream(music[currentSong])
 
 	// GameShaderUpdate(dt)
-	updateBackground(dt)
-	// updatePowerUp(dt)
+	matchBackground.updateBackground(game, dt)
+	if currentMatch.powerUps do updatePowerUp(game, dt)
 
-	if gameMode == GameMode.SinglePlayer || gameMode == GameMode.SinglePlayerTimed {
-		updateAi(&aiState, dt)
+	if game.mode == .SinglePlayer || game.mode == .SinglePlayerTimed {
+		updateAi(game, &aiState, dt)
 	}
 
 	updateMatch(dt)
-	updateGameInput(dt)
-	updatePaddles(dt)
-	updateParticles(dt)
-	updateBall(dt)
+
+	if IsGameClockFinished(gameClock) && currentMatch.matchLength > 0 {
+		game.state = .TimesUp
+		return
+	}
+
+	updateGameInput(game, dt)
+	updatePaddles(game, dt)
+	particleSystem.update(dt)
+	updateBall(game, dt)
 }
 
-GameRender :: proc() {
-	renderBackground()
-	renderRallyPoints()
+GameRender :: proc(game: ^gameTypes.Game) {
+	matchBackground.renderBackground(game)
+	renderMatchInfo(game)
 
-	// rl.DrawCircleV(powerUp.position, powerUp.radius, rl.YELLOW)
+	renderPaddles(game)
+	particleSystem.render()
+	renderBall(game)
 
-	renderPaddles()
-	renderParticles()
-	renderBall()
-	// renderPowerUp()
+	if currentMatch.powerUps do renderPowerUp()
 }

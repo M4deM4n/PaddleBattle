@@ -1,28 +1,31 @@
 package PaddleBattle
 
 import "core:math/rand"
+import "gameTypes"
+import "matchBackground"
+import "particleSystem"
 import rl "vendor:raylib"
 
 announceScoreDialog: bool = true
 dialogDelayTimer: f32
 
 
-PlayerScoredInput :: proc() {
+PlayerScoredInput :: proc(game: ^gameTypes.Game) {
 	if rl.IsKeyPressed(.ESCAPE) {
-		gameState = GameState.MainMenu
+		game.state = .MainMenu
 	}
 
 	if rl.IsKeyPressed(.SPACE) || rl.IsKeyPressed(.ENTER) {
-		resetMatch()
+		resetMatch(game)
 		announceScoreDialog = true
 		dialogDelayTimer = 0
-		gameState = GameState.MatchBegin
+		game.state = .MatchBegin
 		rl.StopMusicStream(music[currentSong])
-		clearParticles()
+		particleSystem.clear()
 	}
 }
 
-PlayerScoredUpdate :: proc(dt: f32) {
+PlayerScoredUpdate :: proc(game: ^gameTypes.Game, dt: f32) {
 	fireworksTimer += dt
 	dialogDelayTimer += dt
 
@@ -38,10 +41,10 @@ PlayerScoredUpdate :: proc(dt: f32) {
 	if fireworksTimer >= fireworksDelay {
 		rl.PlaySound(audioBallImpact)
 		o := rl.Vector2 {
-			f32(rand.int_range(0, int(gameScreenWidth))),
-			f32(rand.int_range(0, int(gameScreenHeight))),
+			f32(rand.int_range(0, int(game.screen.x))),
+			f32(rand.int_range(0, int(game.screen.y))),
 		}
-		spawnBurst(
+		particleSystem.spawnBurst(
 			origin = o,
 			count = 75,
 			color = rand.choice(fireworksColor[:]),
@@ -49,24 +52,26 @@ PlayerScoredUpdate :: proc(dt: f32) {
 			life = 3,
 			size = 14,
 		)
-		spawnBurst(origin = o, count = 35, color = rl.WHITE, speed = 150, life = 1.5, size = 7)
+		particleSystem.spawnBurst(
+			origin = o,
+			count = 35,
+			color = rl.WHITE,
+			speed = 150,
+			life = 1.5,
+			size = 7,
+		)
 		fireworksDelay = rand.float32_range(0.5, 2)
 		fireworksTimer = 0
 	}
 
-	updateBackground(dt)
-	updateParticles(dt)
-	PlayerScoredInput()
+	matchBackground.updateBackground(game, dt)
+	particleSystem.update(dt)
+	PlayerScoredInput(game)
 }
 
-PlayerScoredRender :: proc() {
-	renderBackground()
-	renderParticles()
-	renderText(
-		{(gameScreenWidth * 0.5) + 3, (gameScreenHeight * 0.5) + 3},
-		"SCORE!!!",
-		142,
-		rl.BLACK,
-	)
-	renderText({gameScreenWidth * 0.5, gameScreenHeight * 0.5}, "SCORE!!!", 142, rl.WHITE)
+PlayerScoredRender :: proc(game: ^gameTypes.Game) {
+	matchBackground.renderBackground(game)
+	particleSystem.render()
+	renderMatchGoals(game)
+	renderText(game.centerScreen - {0, game.screen.y * 0.25}, "SCORE!", 142, rl.WHITE, 3)
 }

@@ -1,5 +1,6 @@
-package PaddleBattle
+package MatchBackground
 
+import "../gameTypes"
 import "core:c"
 import rl "vendor:raylib"
 
@@ -20,11 +21,11 @@ GridDistortData :: struct {
 	locGlowColor:     c.int,
 }
 
-makeGridDistortBackground :: proc() -> Background {
+makeGridDistortBackground :: proc(game: ^gameTypes.Game) -> Background {
 	bg: Background
 	bg.id = .GridDistort
 	bg.name = "Grid Distort"
-	bg.shader = rl.LoadShaderFromMemory(nil, #load("../res/shader/grid_distort.glsl", cstring))
+	bg.shader = rl.LoadShaderFromMemory(nil, #load("../../res/shader/grid_distort.glsl", cstring))
 
 	d := new(GridDistortData)
 	d.locTargetHeight = rl.GetShaderLocation(bg.shader, "u_targetHeight")
@@ -49,18 +50,18 @@ makeGridDistortBackground :: proc() -> Background {
 	return bg
 }
 
-gridDistortUpdate :: proc(bg: ^Background, dt: f32) {
-	ball.color = rl.BLACK
+gridDistortUpdate :: proc(game: ^gameTypes.Game, bg: ^Background, dt: f32) {
+	game.ball.color = rl.BLACK
 
 	d := cast(^GridDistortData)bg.data
-	targetH := gameScreenHeight
-	distortRadius := ball.radius * 100
+	targetH := game.screen.y
+	distortRadius := game.ball.radius * 100
 
 	rl.SetShaderValue(bg.shader, d.locTargetHeight, &targetH, .FLOAT)
 	rl.SetShaderValue(bg.shader, d.locGridSize, &d.gridSize, .FLOAT)
 	rl.SetShaderValue(bg.shader, d.locLineWidth, &d.lineWidth, .FLOAT)
-	rl.SetShaderValue(bg.shader, d.locBallPosition, &ball.position, .VEC2)
-	rl.SetShaderValue(bg.shader, d.locBallRadius, &ball.radius, .FLOAT)
+	rl.SetShaderValue(bg.shader, d.locBallPosition, &game.ball.position, .VEC2)
+	rl.SetShaderValue(bg.shader, d.locBallRadius, &game.ball.radius, .FLOAT)
 	rl.SetShaderValue(bg.shader, d.locDistortRadius, &distortRadius, .FLOAT)
 	rl.SetShaderValue(bg.shader, d.locBgColor, &d.bgColor, .VEC3)
 	rl.SetShaderValue(bg.shader, d.locLineColor, &d.lineColor, .VEC3)

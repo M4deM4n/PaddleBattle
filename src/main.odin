@@ -2,19 +2,22 @@ package PaddleBattle
 
 import "core:c"
 import "core:os"
+import "gameTypes"
+import "spriteAnimation"
 import rl "vendor:raylib"
 
 WINDOW_WIDTH :: 1920
 WINDOW_HEIGHT :: 1080
-
-gameScreenWidth: f32 = 1920
-gameScreenHeight: f32 = 1080
 
 renderScale: f32
 
 shouldClose: bool = false
 
 studioTexture: rl.Texture2D
+
+winImg: spriteAnimation.AnimatedSprite
+
+
 main :: proc() {
 
 	rl.SetConfigFlags({.WINDOW_RESIZABLE, .VSYNC_HINT, .BORDERLESS_WINDOWED_MODE})
@@ -31,16 +34,27 @@ main :: proc() {
 	rl.InitAudioDevice()
 	defer rl.CloseAudioDevice()
 
+	game: gameTypes.Game
+	game.screen = {f32(WINDOW_WIDTH), f32(WINDOW_HEIGHT)}
+	game.centerScreen = {game.screen.x * 0.5, game.screen.y * 0.5}
+
 	studioTexture = rl.LoadTexture("../res/img/poo.png")
 	defer rl.UnloadTexture(studioTexture)
 
-	init(GameState.Intro)
+	spriteAnimation.init(&winImg, "../res/img/player_win.png", 100, 100)
+	anim := spriteAnimation.create("win", 0, 14, 12, false)
+	spriteAnimation.addAnimation(&winImg, anim)
+
+	defer rl.UnloadTexture(winImg.texture)
+
+	// init with override starting point
+	init(&game, gameTypes.GameState.Intro)
 
 	initFont()
 	defer rl.UnloadFont(gameFont.font)
 
 	// render texture
-	renderTarget := rl.LoadRenderTexture(i32(gameScreenWidth), i32(gameScreenHeight))
+	renderTarget := rl.LoadRenderTexture(i32(game.screen.x), i32(game.screen.y))
 
 	// filtering
 	rl.SetTextureFilter(renderTarget.texture, .BILINEAR)
@@ -55,18 +69,18 @@ main :: proc() {
 
 		// update game logic
 		dt := rl.GetFrameTime()
-		update(dt)
+		update(&game, dt)
 
 		// render to render texture to maintain aspect ration across resolutions
 		renderScale = min(
-			f32(rl.GetScreenWidth()) / gameScreenWidth,
-			f32(rl.GetScreenHeight()) / gameScreenHeight,
+			f32(rl.GetScreenWidth()) / game.screen.x,
+			f32(rl.GetScreenHeight()) / game.screen.y,
 		)
 
 		// mouse compensation for render scale
 
 		rl.BeginTextureMode(renderTarget)
-		render()
+		render(&game)
 		rl.EndTextureMode()
 
 		rl.BeginDrawing()
@@ -83,10 +97,10 @@ main :: proc() {
 				-f32(renderTarget.texture.height),
 			},
 			rl.Rectangle {
-				(f32(rl.GetScreenWidth()) * 0.5) - ((gameScreenWidth * renderScale) * 0.5),
-				(f32(rl.GetScreenHeight()) * 0.5) - ((gameScreenHeight * renderScale) * 0.5),
-				gameScreenWidth * renderScale,
-				gameScreenHeight * renderScale,
+				(f32(rl.GetScreenWidth()) * 0.5) - ((game.screen.x * renderScale) * 0.5),
+				(f32(rl.GetScreenHeight()) * 0.5) - ((game.screen.y * renderScale) * 0.5),
+				game.screen.x * renderScale,
+				game.screen.y * renderScale,
 			},
 			rl.Vector2{0, 0},
 			0,
@@ -94,6 +108,8 @@ main :: proc() {
 		)
 
 		rl.EndDrawing()
+
+		free_all(context.temp_allocator)
 	}
 
 	unloadAudio()

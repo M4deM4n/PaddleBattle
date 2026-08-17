@@ -1,6 +1,7 @@
 package PaddleBattle
 
 import "core:fmt"
+import "gameTypes"
 import rl "vendor:raylib"
 
 introAlpha: f32 = 0.0
@@ -10,7 +11,7 @@ introTextureColor: rl.Color = rl.WHITE
 introTimer: f32
 introSoundPlayed: bool
 
-IntroUpdate :: proc(dt: f32) {
+IntroUpdate :: proc(game: ^gameTypes.Game, dt: f32) {
 	introTimer += dt
 
 	if introTimer <= 1.5 {
@@ -29,13 +30,13 @@ IntroUpdate :: proc(dt: f32) {
 
 	if introTimer >= 8 {
 		introTimer = 0
-		gameState = GameState.MainMenu
+		game.state = .MainMenu
 	}
 
 
 }
 
-IntroRender :: proc() {
+IntroRender :: proc(game: ^gameTypes.Game) {
 	rl.ClearBackground({255, 227, 102, 255})
 	rl.BeginBlendMode(.ALPHA)
 	introTextureColor = rl.Fade(rl.WHITE, introAlpha)
@@ -45,22 +46,11 @@ IntroRender :: proc() {
 
 	rl.DrawTexture(
 		studioTexture,
-		i32(gameScreenWidth * 0.5) - i32(f32(studioTexture.width) * 0.5),
-		i32(gameScreenHeight * 0.5) - i32(f32(studioTexture.height) * 0.5),
+		i32(game.screen.x * 0.5) - i32(f32(studioTexture.width) * 0.5),
+		i32(game.screen.y * 0.5) - i32(f32(studioTexture.height) * 0.5),
 		introTextureColor,
 	)
 	rl.EndBlendMode()
 
-	// renderText(
-	// 	{(gameScreenWidth * 0.5) + 3, gameScreenHeight * 0.5 + 203},
-	// 	"Shits N Giggles",
-	// 	72,
-	// 	introShadowColor,
-	// )
-	renderText(
-		{gameScreenWidth * 0.5, gameScreenHeight * 0.5 + 200},
-		"Shits N Giggles",
-		72,
-		introTextColor,
-	)
+	renderText(game.centerScreen + rl.Vector2{0, 200}, "Shits N Giggles", 72, introTextColor)
 }

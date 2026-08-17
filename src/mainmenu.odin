@@ -1,12 +1,16 @@
 package PaddleBattle
 
 import "core:math/rand"
+import "gameTypes"
+import "matchBackground"
+import "particleSystem"
+import "spriteAnimation"
 import rl "vendor:raylib"
 
 SINGLE_PLAYER :: "Single Player"
 LOCAL_MULTIPLAYER :: "Local Multiplayer"
 
-gameOptions := []cstring{SINGLE_PLAYER, LOCAL_MULTIPLAYER}
+mainMenuOptions := []cstring{SINGLE_PLAYER, LOCAL_MULTIPLAYER}
 selectedOption: int
 selectedColor: rl.Color = rl.YELLOW
 
@@ -15,7 +19,7 @@ fireworksTimer: f32
 fireworksDelay: f32 = 1
 fireworksColor: [2]rl.Color = [2]rl.Color{{0, 0, 255, 255}, {255, 0, 0, 255}}
 
-MainMenuInput :: proc() {
+MainMenuInput :: proc(game: ^gameTypes.Game) {
 	if rl.IsKeyPressed(.ESCAPE) {
 		shouldClose = true
 	}
@@ -31,35 +35,35 @@ MainMenuInput :: proc() {
 	}
 
 	if rl.IsKeyPressed(.SPACE) || rl.IsKeyPressed(.ENTER) {
-		switch gameOptions[selectedOption] {
+		switch mainMenuOptions[selectedOption] {
 		case SINGLE_PLAYER:
 			MainMenuLoaded = false
-			gameMode = GameMode.SinglePlayer
+			game.mode = .SinglePlayer
 
 		case LOCAL_MULTIPLAYER:
 			MainMenuLoaded = false
-			gameMode = GameMode.Multiplayer
+			game.mode = .Multiplayer
 		}
 
-		clearParticles()
-
+		particleSystem.clear()
+		initMatch(game)
 		rl.StopMusicStream(music[currentSong])
 		rl.StopMusicStream(titleMusic)
-		gameState = GameState.MatchBegin
 
+		game.state = .MatchBegin
 	}
 
 	// bounds checks
 	if selectedOption < 0 {
-		selectedOption = len(gameOptions) - 1
+		selectedOption = len(mainMenuOptions) - 1
 	}
 
-	if selectedOption >= len(gameOptions) {
+	if selectedOption >= len(mainMenuOptions) {
 		selectedOption = 0
 	}
 }
 
-MainMenuUpdate :: proc(dt: f32) {
+MainMenuUpdate :: proc(game: ^gameTypes.Game, dt: f32) {
 	fireworksTimer += dt
 
 	if !rl.IsMusicStreamPlaying(titleMusic) {
@@ -69,6 +73,7 @@ MainMenuUpdate :: proc(dt: f32) {
 	rl.UpdateMusicStream(titleMusic)
 
 	if !rl.IsSoundPlaying(audioTitle) && !MainMenuLoaded {
+		spriteAnimation.play(&winImg, "win", true)
 		MainMenuLoaded = true
 		rl.PlaySound(audioTitle)
 		// rl.PlayMusicStream(music)
@@ -77,11 +82,11 @@ MainMenuUpdate :: proc(dt: f32) {
 	if fireworksTimer >= fireworksDelay {
 		rl.PlaySound(audioBallImpact)
 		o := rl.Vector2 {
-			f32(rand.int_range(0, int(gameScreenWidth))),
-			f32(rand.int_range(0, int(gameScreenHeight))),
+			f32(rand.int_range(0, int(game.screen.x))),
+			f32(rand.int_range(0, int(game.screen.y))),
 		}
 
-		spawnBurst(
+		particleSystem.spawnBurst(
 			origin = o,
 			count = 75,
 			color = rand.choice(fireworksColor[:]),
@@ -89,32 +94,43 @@ MainMenuUpdate :: proc(dt: f32) {
 			life = 3,
 			size = 14,
 		)
-		spawnBurst(origin = o, count = 35, color = rl.WHITE, speed = 150, life = 1.5, size = 7)
+		particleSystem.spawnBurst(
+			origin = o,
+			count = 35,
+			color = rl.WHITE,
+			speed = 150,
+			life = 1.5,
+			size = 7,
+		)
 		fireworksDelay = rand.float32_range(0.5, 2)
 		fireworksTimer = 0
 	}
 
 	// rl.UpdateMusicStream(music)
-	updateParticles(dt)
-	MainMenuInput()
+	particleSystem.update(dt)
+
+	spriteAnimation.play(&winImg, "win")
+	spriteAnimation.update(&winImg, dt)
+
+	MainMenuInput(game)
 }
 
-MainMenuRender :: proc() {
-	renderParticles()
-	renderText(
-		{gameScreenWidth * 0.5, (gameScreenHeight * 0.5) - 300},
-		"PADDLE BATTLE",
-		144,
-		rl.WHITE,
-	)
+MainMenuRender :: proc(game: ^gameTypes.Game) {
+	particleSystem.render()
 
-	for option, i in gameOptions {
+	spriteAnimation.render(&winImg, {850, game.screen.y + 10}, 8, true, rl.BLUE)
+	spriteAnimation.render(&winImg, {game.screen.x - 50, game.screen.y + 10}, 8, false, rl.RED)
+
+	renderText(game.centerScreen + rl.Vector2{0, -300}, "PADDLE BATTLE", 144, rl.WHITE, 3)
+
+	for option, i in mainMenuOptions {
 		vOffset := i * 100
 		renderText(
-			{gameScreenWidth * 0.5, (gameScreenHeight * 0.5) + f32(vOffset)},
-			gameOptions[i],
+			game.centerScreen + rl.Vector2{0, f32(vOffset)},
+			mainMenuOptions[i],
 			72,
 			(i == selectedOption) ? selectedColor : rl.WHITE,
+			3,
 		)
 	}
 }

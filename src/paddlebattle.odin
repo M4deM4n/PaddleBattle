@@ -2,6 +2,8 @@ package PaddleBattle
 
 import "core:c"
 import "core:fmt"
+import "gameTypes"
+import "matchBackground"
 import rl "vendor:raylib"
 
 player1 :: 0
@@ -12,35 +14,77 @@ paddle_r_posY: f32
 
 paddle_velocity: f32
 
-paddles: [2]Paddle
-ball: Ball
+// paddles: [2]Paddle
+// ball: Ball
 
 startPosY: f32
 
 aiState: AiState
 
-init :: proc(gs: GameState) {
+init :: proc(game: ^gameTypes.Game, gameState: gameTypes.GameState = gameTypes.GameState.Intro) {
 	initAudio()
 
 	paddle_velocity = 600
 	ignoreCollission = false
-	ballspeed = 500
 
-	initBall()
-	initPaddles()
-	initBackgrounds()
-	initPowerUp()
-	initAI()
+	initMatch(game)
+	initBall(game)
+	initPaddles(game)
+	matchBackground.initBackgrounds(game)
+	initPowerUp(game)
+	initAI(game)
 
-	gameState = gs
+	game.state = gameState
 }
 
-update :: proc(dt: f32) {
-	updateGameState(dt)
+update :: proc(game: ^gameTypes.Game, dt: f32) {
+	#partial switch game.state {
+	case .Intro:
+		IntroUpdate(game, dt)
+
+	case .MainMenu:
+		MainMenuUpdate(game, dt)
+
+	case .MatchBegin:
+		MatchBeginUpdate(game, dt)
+
+	case .Playing:
+		GameUpdate(game, dt)
+
+	case .PlayerScored:
+		PlayerScoredUpdate(game, dt)
+
+	case .MatchOver:
+		MatchOverUpdate(game, dt)
+
+	case .TimesUp:
+		TimeUpUpdate(game, dt)
+	}
 }
 
-render :: proc() {
+render :: proc(game: ^gameTypes.Game) {
 	rl.ClearBackground({0, 0, 0, 255})
 
-	renderGameState()
+	#partial switch game.state {
+	case .Intro:
+		IntroRender(game)
+
+	case .MainMenu:
+		MainMenuRender(game)
+
+	case .MatchBegin:
+		MatchBeginRender(game)
+
+	case .Playing:
+		GameRender(game)
+
+	case .PlayerScored:
+		PlayerScoredRender(game)
+
+	case .MatchOver:
+		MatchOverRender(game)
+
+	case .TimesUp:
+		TimeUpRender(game)
+	}
 }

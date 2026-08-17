@@ -1,4 +1,4 @@
-package PaddleBattle
+package ParticleSystem
 
 import "core:math"
 import "core:math/rand"
@@ -61,7 +61,7 @@ addParticle :: proc(p: Particle) {
 	}
 }
 
-updateParticles :: proc(dt: f32) {
+update :: proc(dt: f32) {
 	i := 0
 	for i < particleCount {
 		p := &particles[i]
@@ -80,7 +80,7 @@ updateParticles :: proc(dt: f32) {
 	}
 }
 
-renderParticles :: proc() {
+render :: proc() {
 	for i in 0 ..< particleCount {
 		p := &particles[i]
 		c := p.color
@@ -91,6 +91,6 @@ renderParticles :: proc() {
 	}
 }
 
-clearParticles :: proc() {
+clear :: proc() {
 	particleCount = 0
 }
