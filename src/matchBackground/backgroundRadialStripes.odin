@@ -1,6 +1,6 @@
 package MatchBackground
 
-import "../gameTypes"
+import "../types"
 import "core:c"
 import rl "vendor:raylib"
 
@@ -24,7 +24,7 @@ RadialStripesData :: struct {
 	elapsedTime:       f32,
 }
 
-makeRadialStripesBackground :: proc(game: ^gameTypes.Game) -> Background {
+makeRadialStripesBackground :: proc(game: ^types.Game) -> Background {
 	bg: Background
 	bg.id = .RadialStripes
 	bg.name = "Radial Stripes"
@@ -60,7 +60,7 @@ makeRadialStripesBackground :: proc(game: ^gameTypes.Game) -> Background {
 	return bg
 }
 
-resetRadialStripes :: proc(game: ^gameTypes.Game, bg: ^Background) {
+resetRadialStripes :: proc(game: ^types.Game, bg: ^Background) {
 	d := cast(^RadialStripesData)bg.data
 	d.elapsedTime = 0
 	d.rotationSpeed = (game.ball.velocity.x * 0.25) / 25000.0
@@ -68,7 +68,7 @@ resetRadialStripes :: proc(game: ^gameTypes.Game, bg: ^Background) {
 
 }
 
-radialStripesUpdate :: proc(game: ^gameTypes.Game, bg: ^Background, dt: f32) {
+radialStripesUpdate :: proc(game: ^types.Game, bg: ^Background, dt: f32) {
 	d := cast(^RadialStripesData)bg.data
 	// t := f32(rl.GetTime())
 	d.elapsedTime += dt

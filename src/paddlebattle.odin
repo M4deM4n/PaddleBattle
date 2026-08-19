@@ -2,8 +2,8 @@ package PaddleBattle
 
 import "core:c"
 import "core:fmt"
-import "gameTypes"
 import "matchBackground"
+import "types"
 import rl "vendor:raylib"
 
 player1 :: 0
@@ -21,8 +21,7 @@ startPosY: f32
 
 aiState: AiState
 
-init :: proc(game: ^gameTypes.Game, gameState: gameTypes.GameState = gameTypes.GameState.Intro) {
-	initAudio()
+init :: proc(game: ^types.Game, gameState: types.GameState = types.GameState.Intro) {
 
 	paddle_velocity = 600
 	ignoreCollission = false
@@ -37,7 +36,7 @@ init :: proc(game: ^gameTypes.Game, gameState: gameTypes.GameState = gameTypes.G
 	game.state = gameState
 }
 
-update :: proc(game: ^gameTypes.Game, dt: f32) {
+update :: proc(game: ^types.Game, dt: f32) {
 	#partial switch game.state {
 	case .Intro:
 		IntroUpdate(game, dt)
@@ -62,7 +61,7 @@ update :: proc(game: ^gameTypes.Game, dt: f32) {
 	}
 }
 
-render :: proc(game: ^gameTypes.Game) {
+render :: proc(game: ^types.Game) {
 	rl.ClearBackground({0, 0, 0, 255})
 
 	#partial switch game.state {

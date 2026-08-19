@@ -1,6 +1,6 @@
 package MatchBackground
 
-import "../gameTypes"
+import "../types"
 import "core:c"
 import "core:fmt"
 import rl "vendor:raylib"
@@ -21,7 +21,7 @@ HexScrollData :: struct {
 	paddle2Color: [3]f32,
 }
 
-makeHexScrollBackground :: proc(game: ^gameTypes.Game) -> Background {
+makeHexScrollBackground :: proc(game: ^types.Game) -> Background {
 	bg: Background
 	bg.id = .HexScroll
 	bg.name = "Hex Scroll"
@@ -44,7 +44,7 @@ makeHexScrollBackground :: proc(game: ^gameTypes.Game) -> Background {
 	return bg
 }
 
-hexScrollUpdate :: proc(game: ^gameTypes.Game, bg: ^Background, dt: f32) {
+hexScrollUpdate :: proc(game: ^types.Game, bg: ^Background, dt: f32) {
 	d := cast(^HexScrollData)bg.data
 	t := f32(rl.GetTime())
 	res := game.screen

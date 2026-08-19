@@ -2,7 +2,7 @@ package PaddleBattle
 
 import "core:fmt"
 import "core:math"
-import "gameTypes"
+import "types"
 import rl "vendor:raylib"
 
 PowerUp :: struct {
@@ -21,11 +21,11 @@ PowerUpState :: struct {
 
 powerUp: PowerUp
 
-initPowerUp :: proc(game: ^gameTypes.Game) {
+initPowerUp :: proc(game: ^types.Game) {
 	SpawnPowerUp(game)
 }
 
-updatePowerUp :: proc(game: ^gameTypes.Game, dt: f32) {
+updatePowerUp :: proc(game: ^types.Game, dt: f32) {
 	angle += 1 * dt
 	powerUp.position += {math.cos(angle) * 1.5, powerUp.velocity.y * dt}
 
@@ -38,7 +38,7 @@ renderPowerUp :: proc() {
 	rl.DrawCircleV(powerUp.position, powerUp.radius, rl.YELLOW)
 }
 
-SpawnPowerUp :: proc(game: ^gameTypes.Game) {
+SpawnPowerUp :: proc(game: ^types.Game) {
 	powerUp = PowerUp {
 		position = game.centerScreen,
 		velocity = rl.Vector2{0, 50},

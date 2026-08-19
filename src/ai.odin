@@ -2,7 +2,7 @@ package PaddleBattle
 
 import "core:math"
 import "core:math/rand"
-import "gameTypes"
+import "types"
 
 AiState :: struct {
 	profile:       OpponentProfile,
@@ -14,7 +14,7 @@ AiState :: struct {
 	isTracking:    bool,
 }
 
-initAI :: proc(game: ^gameTypes.Game) {
+initAI :: proc(game: ^types.Game) {
 	aiState = {
 		profile    = Profile_SlowPoke,
 		posY       = game.paddles[player2].position.y,
@@ -22,7 +22,7 @@ initAI :: proc(game: ^gameTypes.Game) {
 	}
 }
 
-predictTrajectory :: proc(game: ^gameTypes.Game) -> f32 {
+predictTrajectory :: proc(game: ^types.Game) -> f32 {
 	timeToImpact :=
 		(game.paddles[player2].position.x - game.ball.position.x) / game.ball.position.x
 	futureY := game.ball.position.y + (game.ball.velocity.y * timeToImpact)
@@ -39,7 +39,7 @@ predictTrajectory :: proc(game: ^gameTypes.Game) -> f32 {
 	return wrappedY
 }
 
-updateAi :: proc(game: ^gameTypes.Game, ai: ^AiState, dt: f32) {
+updateAi :: proc(game: ^types.Game, ai: ^AiState, dt: f32) {
 	// calculate destination Y
 	if game.ball.velocity.x > 0.0 {
 

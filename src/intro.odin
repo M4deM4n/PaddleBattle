@@ -1,7 +1,7 @@
 package PaddleBattle
 
 import "core:fmt"
-import "gameTypes"
+import "types"
 import rl "vendor:raylib"
 
 introAlpha: f32 = 0.0
@@ -11,7 +11,7 @@ introTextureColor: rl.Color = rl.WHITE
 introTimer: f32
 introSoundPlayed: bool
 
-IntroUpdate :: proc(game: ^gameTypes.Game, dt: f32) {
+IntroUpdate :: proc(game: ^types.Game, dt: f32) {
 	introTimer += dt
 
 	if introTimer <= 1.5 {
@@ -23,8 +23,10 @@ IntroUpdate :: proc(game: ^gameTypes.Game, dt: f32) {
 		if introAlpha > 1.0 {introAlpha = 1.0}
 	}
 
-	if !rl.IsSoundPlaying(introLaughter) && introAlpha >= 0.5 && !introSoundPlayed {
-		rl.PlaySound(introLaughter)
+	if !rl.IsSoundPlaying(game.audio.sfx["intro.laughter"]) &&
+	   introAlpha >= 0.5 &&
+	   !introSoundPlayed {
+		rl.PlaySound(game.audio.sfx["intro.laughter"])
 		introSoundPlayed = true
 	}
 
@@ -36,7 +38,7 @@ IntroUpdate :: proc(game: ^gameTypes.Game, dt: f32) {
 
 }
 
-IntroRender :: proc(game: ^gameTypes.Game) {
+IntroRender :: proc(game: ^types.Game) {
 	rl.ClearBackground({255, 227, 102, 255})
 	rl.BeginBlendMode(.ALPHA)
 	introTextureColor = rl.Fade(rl.WHITE, introAlpha)

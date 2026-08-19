@@ -1,6 +1,6 @@
 package PaddleBattle
 
-import "gameTypes"
+import "types"
 import rl "vendor:raylib"
 
 Paddle :: struct {
@@ -15,10 +15,10 @@ Paddle :: struct {
 
 normalPaddle: rl.Vector2 = {20, 100}
 
-initPaddles :: proc(game: ^gameTypes.Game) {
+initPaddles :: proc(game: ^types.Game) {
 	startPosY = (game.screen.y * 0.5) - (normalPaddle.y * 0.5)
 
-	paddle_l := gameTypes.Paddle {
+	paddle_l := types.Paddle {
 		size         = {20, 100},
 		position     = {10, startPosY},
 		velocity     = paddle_velocity,
@@ -28,7 +28,7 @@ initPaddles :: proc(game: ^gameTypes.Game) {
 		shadowOffset = {3, 3},
 	}
 
-	paddle_r := gameTypes.Paddle {
+	paddle_r := types.Paddle {
 		position     = {game.screen.x - 30, startPosY},
 		size         = {20, 100},
 		velocity     = paddle_velocity,
@@ -42,13 +42,13 @@ initPaddles :: proc(game: ^gameTypes.Game) {
 	game.paddles[player2] = paddle_r
 }
 
-resetPaddles :: proc(game: ^gameTypes.Game) {
+resetPaddles :: proc(game: ^types.Game) {
 	for i in 0 ..= 1 {
 		game.paddles[i].position.y = startPosY
 	}
 }
 
-updatePaddleInput :: proc(game: ^gameTypes.Game, dt: f32) {
+updatePaddleInput :: proc(game: ^types.Game, dt: f32) {
 	// player 1
 	if rl.IsKeyDown(.W) {
 		game.paddles[player1].position.y -= game.paddles[player1].velocity * dt
@@ -71,7 +71,7 @@ updatePaddleInput :: proc(game: ^gameTypes.Game, dt: f32) {
 	}
 }
 
-updatePaddles :: proc(game: ^gameTypes.Game, dt: f32) {
+updatePaddles :: proc(game: ^types.Game, dt: f32) {
 	updatePaddleInput(game, dt)
 
 	// clamp paddles so they stay on screen
@@ -101,7 +101,7 @@ updatePaddles :: proc(game: ^gameTypes.Game, dt: f32) {
 	}
 }
 
-renderPaddles :: proc(game: ^gameTypes.Game) {
+renderPaddles :: proc(game: ^types.Game) {
 	for playerPaddle in game.paddles {
 		rl.DrawRectangleV(
 			playerPaddle.position + playerPaddle.shadowOffset,

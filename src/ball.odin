@@ -2,8 +2,8 @@ package PaddleBattle
 
 import "core:fmt"
 import "core:math"
-import "gameTypes"
 import "particleSystem"
+import "types"
 import rl "vendor:raylib"
 
 
@@ -16,8 +16,8 @@ hitPoint: rl.Vector2
 
 paddleRect: rl.Rectangle
 
-initBall :: proc(game: ^gameTypes.Game) {
-	game.ball = gameTypes.Ball {
+initBall :: proc(game: ^types.Game) {
+	game.ball = types.Ball {
 		position     = {game.screen.x * 0.5, game.screen.y * 0.5},
 		velocity     = {currentMatch.ballSpeed, currentMatch.ballSpeed},
 		radius       = 10,
@@ -27,13 +27,13 @@ initBall :: proc(game: ^gameTypes.Game) {
 	}
 }
 
-resetBall :: proc(game: ^gameTypes.Game) {
+resetBall :: proc(game: ^types.Game) {
 	currentMatch.currentBallSpeed = currentMatch.ballSpeed
 	game.ball.position = game.centerScreen
 	game.ball.velocity = rl.Vector2Normalize(game.ball.velocity) * currentMatch.currentBallSpeed
 }
 
-updateBall :: proc(game: ^gameTypes.Game, dt: f32) {
+updateBall :: proc(game: ^types.Game, dt: f32) {
 	lastBallPosition = game.ball.position
 	nextBallPosition =
 		game.ball.position +
@@ -57,13 +57,13 @@ updateBall :: proc(game: ^gameTypes.Game, dt: f32) {
 				paddleRect,
 				&hitPoint,
 			) {
-				rl.PlaySound(audioBallImpact)
+				rl.PlaySound(game.audio.sfx["ball.impact"])
 				game.ball.position = hitPoint
 
 				// increase ball velocity
 				currentMatch.currentBallSpeed += currentMatch.ballAcceleration
 
-				updateRally()
+				updateRally(game)
 
 				// ball.velocity *= -1
 				game.ball.velocity = calculateNewVelocity(game, playerPaddle)
@@ -83,11 +83,11 @@ updateBall :: proc(game: ^gameTypes.Game, dt: f32) {
 			if rl.CheckCollisionCircleRec(game.ball.position, game.ball.radius, paddleRect) {
 				playerPaddle.color = rl.WHITE
 
-				rl.PlaySound(audioBallImpact)
+				rl.PlaySound(game.audio.sfx["ball.impact"])
 
 				currentMatch.currentBallSpeed += currentMatch.ballAcceleration
 
-				updateRally()
+				updateRally(game)
 
 				if game.ball.velocity.x < 0 {
 					paddleEdgeX := playerPaddle.position.x + (playerPaddle.size.x * 0.5)
@@ -131,7 +131,7 @@ updateBall :: proc(game: ^gameTypes.Game, dt: f32) {
 	}
 
 	if game.ball.position.x > game.screen.x || game.ball.position.x < 0 {
-		rl.PlaySound(audioHorn)
+		rl.PlaySound(game.audio.sfx["match.score"])
 
 		if game.ball.position.x > game.screen.x {
 			currentMatch.p1Score += currentMatch.rallyScore
@@ -151,7 +151,7 @@ updateBall :: proc(game: ^gameTypes.Game, dt: f32) {
 	}
 }
 
-renderBall :: proc(game: ^gameTypes.Game) {
+renderBall :: proc(game: ^types.Game) {
 	rl.DrawCircleV(
 		game.ball.position + game.ball.shadowOffset,
 		game.ball.radius,
@@ -164,7 +164,7 @@ renderBall :: proc(game: ^gameTypes.Game) {
 // CheckCollisionLineRect checks if a line segment intersects with any edge of a rectangle.
 // It returns true if a collision occurs and optionally outputs the first collision point found.
 CheckCollisionLineRect :: proc(
-	game: ^gameTypes.Game,
+	game: ^types.Game,
 	line_start, line_end: rl.Vector2,
 	rec: rl.Rectangle,
 	collision_point: ^rl.Vector2,
@@ -234,7 +234,7 @@ CheckCollisionLineRect :: proc(
 }
 
 
-calculateNewVelocity :: proc(game: ^gameTypes.Game, playerPaddle: gameTypes.Paddle) -> rl.Vector2 {
+calculateNewVelocity :: proc(game: ^types.Game, playerPaddle: types.Paddle) -> rl.Vector2 {
 	reflectDirection :=
 		game.ball.position -
 		{playerPaddle.position.x, playerPaddle.position.y + (playerPaddle.size.y * 0.5)}

@@ -2,9 +2,9 @@ package PaddleBattle
 
 import "core:fmt"
 import "core:math/rand"
-import "gameTypes"
 import "matchBackground"
 import "particleSystem"
+import "types"
 import rl "vendor:raylib"
 
 CONTINUE :: "Next Match"
@@ -13,16 +13,16 @@ MAIN_MENU :: "Return To Menu"
 matchOverOptions := []cstring{CONTINUE, MAIN_MENU}
 matchOverSelectedOption: int
 
-matchOverInput :: proc(game: ^gameTypes.Game, dt: f32) {
+matchOverInput :: proc(game: ^types.Game, dt: f32) {
 	// updateGameInput(dt)
 	if rl.IsKeyPressed(.W) {
 		matchOverSelectedOption -= 1
-		rl.PlaySound(audioMenuSelect)
+		rl.PlaySound(game.audio.sfx["menu.choice"])
 	}
 
 	if rl.IsKeyPressed(.S) {
 		matchOverSelectedOption += 1
-		rl.PlaySound(audioMenuSelect)
+		rl.PlaySound(game.audio.sfx["menu.choice"])
 	}
 
 	if rl.IsKeyPressed(.SPACE) || rl.IsKeyPressed(.ENTER) {
@@ -42,8 +42,8 @@ matchOverInput :: proc(game: ^gameTypes.Game, dt: f32) {
 		particleSystem.clear()
 		// initMatch(game)
 
-		rl.StopMusicStream(music[currentSong])
-		rl.StopMusicStream(titleMusic)
+		rl.StopMusicStream(game.audio.music[currentSong])
+		rl.StopMusicStream(game.audio.titleMusic)
 
 		// game.state = .MatchBegin
 	}
@@ -58,12 +58,12 @@ matchOverInput :: proc(game: ^gameTypes.Game, dt: f32) {
 	}
 }
 
-MatchOverUpdate :: proc(game: ^gameTypes.Game, dt: f32) {
+MatchOverUpdate :: proc(game: ^types.Game, dt: f32) {
 	fireworksTimer += dt
-	rl.UpdateMusicStream(music[currentSong])
+	rl.UpdateMusicStream(game.audio.music[currentSong])
 
 	if fireworksTimer >= fireworksDelay {
-		rl.PlaySound(audioBallImpact)
+		rl.PlaySound(game.audio.sfx["ball.impact"])
 		o := rl.Vector2 {
 			f32(rand.int_range(0, int(game.screen.x))),
 			f32(rand.int_range(0, int(game.screen.y))),
@@ -94,7 +94,7 @@ MatchOverUpdate :: proc(game: ^gameTypes.Game, dt: f32) {
 
 }
 
-MatchOverRender :: proc(game: ^gameTypes.Game) {
+MatchOverRender :: proc(game: ^types.Game) {
 	matchBackground.renderBackground(game)
 	particleSystem.render()
 	renderText(game.centerScreen + rl.Vector2{0, f32(-144)}, "WIN!!!", 144, rl.WHITE, 3)

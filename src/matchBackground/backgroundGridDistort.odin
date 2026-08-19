@@ -1,6 +1,6 @@
 package MatchBackground
 
-import "../gameTypes"
+import "../types"
 import "core:c"
 import rl "vendor:raylib"
 
@@ -21,7 +21,7 @@ GridDistortData :: struct {
 	locGlowColor:     c.int,
 }
 
-makeGridDistortBackground :: proc(game: ^gameTypes.Game) -> Background {
+makeGridDistortBackground :: proc(game: ^types.Game) -> Background {
 	bg: Background
 	bg.id = .GridDistort
 	bg.name = "Grid Distort"
@@ -50,7 +50,7 @@ makeGridDistortBackground :: proc(game: ^gameTypes.Game) -> Background {
 	return bg
 }
 
-gridDistortUpdate :: proc(game: ^gameTypes.Game, bg: ^Background, dt: f32) {
+gridDistortUpdate :: proc(game: ^types.Game, bg: ^Background, dt: f32) {
 	game.ball.color = rl.BLACK
 
 	d := cast(^GridDistortData)bg.data

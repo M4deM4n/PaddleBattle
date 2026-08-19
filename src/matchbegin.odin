@@ -1,7 +1,7 @@
 package PaddleBattle
 
-import "gameTypes"
 import "matchBackground"
+import "types"
 import rl "vendor:raylib"
 
 matchBeginTimer: f32
@@ -10,19 +10,19 @@ matchCounterText: [4]cstring = {"3", "2", "1", "GO!"}
 matchBeginText: cstring
 announceMatch: bool = true
 
-MatchBeginUpdate :: proc(game: ^gameTypes.Game, dt: f32) {
+MatchBeginUpdate :: proc(game: ^types.Game, dt: f32) {
 	matchBeginTimer += dt
 
-	if !rl.IsSoundPlaying(audioStartMatch) && announceMatch {
-		if rl.IsMusicStreamPlaying(music[currentSong]) {
-			rl.StopMusicStream(music[currentSong])
+	if !rl.IsSoundPlaying(game.audio.sfx["match.start"]) && announceMatch {
+		if rl.IsMusicStreamPlaying(game.audio.music[currentSong]) {
+			rl.StopMusicStream(game.audio.music[currentSong])
 		}
 		announceMatch = false
-		rl.PlaySound(audioStartMatch)
-		rl.PlayMusicStream(music[currentSong])
+		rl.PlaySound(game.audio.sfx["match.start"])
+		rl.PlayMusicStream(game.audio.music[currentSong])
 	}
 
-	rl.UpdateMusicStream(music[currentSong])
+	rl.UpdateMusicStream(game.audio.music[currentSong])
 
 	if matchBeginTimer >= 1 {
 		matchCounterIndex += 1
@@ -38,7 +38,7 @@ MatchBeginUpdate :: proc(game: ^gameTypes.Game, dt: f32) {
 	matchBackground.updateBackground(game, dt)
 }
 
-MatchBeginRender :: proc(game: ^gameTypes.Game) {
+MatchBeginRender :: proc(game: ^types.Game) {
 	matchBackground.renderBackground(game)
 	renderText(game.centerScreen, matchCounterText[matchCounterIndex], 72, rl.WHITE, 3)
 }

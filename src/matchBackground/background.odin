@@ -1,6 +1,6 @@
 package MatchBackground
 
-import "../gameTypes"
+import "../types"
 import rl "vendor:raylib"
 
 BackgroundID :: enum {
@@ -15,9 +15,9 @@ Background :: struct {
 	name:    cstring,
 	shader:  rl.Shader,
 	data:    rawptr,
-	reset:   proc(game: ^gameTypes.Game, bg: ^Background),
-	update:  proc(game: ^gameTypes.Game, bg: ^Background, dt: f32),
-	render:  proc(game: ^gameTypes.Game, bg: ^Background),
+	reset:   proc(game: ^types.Game, bg: ^Background),
+	update:  proc(game: ^types.Game, bg: ^Background, dt: f32),
+	render:  proc(game: ^types.Game, bg: ^Background),
 	destroy: proc(bg: ^Background),
 }
 
@@ -26,7 +26,7 @@ currentBgID: BackgroundID = .HexScroll
 gameScreenWidth: f32 = 1920
 gameScreenHeight: f32 = 1080
 
-initBackgrounds :: proc(game: ^gameTypes.Game) {
+initBackgrounds :: proc(game: ^types.Game) {
 	backgrounds[.GridDistort] = makeGridDistortBackground(game)
 	backgrounds[.StarfieldSquares] = makeStarfieldSquaresBackground(game)
 	backgrounds[.HexScroll] = makeHexScrollBackground(game)
@@ -43,17 +43,17 @@ cycleBackground :: proc() {
 	currentBgID = BackgroundID(next)
 }
 
-resetBackground :: proc(game: ^gameTypes.Game) {
+resetBackground :: proc(game: ^types.Game) {
 	bg := &backgrounds[currentBgID]
 	if bg.reset != nil do bg.reset(game, bg)
 }
 
-updateBackground :: proc(game: ^gameTypes.Game, dt: f32) {
+updateBackground :: proc(game: ^types.Game, dt: f32) {
 	bg := &backgrounds[currentBgID]
 	if bg.update != nil do bg.update(game, bg, dt)
 }
 
-renderBackground :: proc(game: ^gameTypes.Game) {
+renderBackground :: proc(game: ^types.Game) {
 	bg := &backgrounds[currentBgID]
 	if bg.render != nil {
 		bg.render(game, bg)

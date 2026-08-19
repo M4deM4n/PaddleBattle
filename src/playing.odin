@@ -2,13 +2,13 @@ package PaddleBattle
 
 import "core:c"
 import "core:fmt"
-import "gameTypes"
 import "matchBackground"
 import "particleSystem"
+import "types"
 import rl "vendor:raylib"
 
 
-updateGameInput :: proc(game: ^gameTypes.Game, dt: f32) {
+updateGameInput :: proc(game: ^types.Game, dt: f32) {
 	if rl.IsKeyPressed(.ESCAPE) {
 		MainMenuLoaded = false
 		game.state = .MainMenu
@@ -23,7 +23,7 @@ updateGameInput :: proc(game: ^gameTypes.Game, dt: f32) {
 	}
 
 	if rl.IsKeyPressed(.EQUAL) {
-		nextTrack()
+		nextTrack(&game.audio)
 	}
 
 	// debug
@@ -32,13 +32,13 @@ updateGameInput :: proc(game: ^gameTypes.Game, dt: f32) {
 	}
 }
 
-GameUpdate :: proc(game: ^gameTypes.Game, dt: f32) {
+GameUpdate :: proc(game: ^types.Game, dt: f32) {
 
-	if !rl.IsMusicStreamPlaying(music[currentSong]) {
-		rl.PlayMusicStream(music[currentSong])
+	if !rl.IsMusicStreamPlaying(game.audio.music[currentSong]) {
+		rl.PlayMusicStream(game.audio.music[currentSong])
 	}
 
-	rl.UpdateMusicStream(music[currentSong])
+	rl.UpdateMusicStream(game.audio.music[currentSong])
 
 	// GameShaderUpdate(dt)
 	matchBackground.updateBackground(game, dt)
@@ -61,7 +61,7 @@ GameUpdate :: proc(game: ^gameTypes.Game, dt: f32) {
 	updateBall(game, dt)
 }
 
-GameRender :: proc(game: ^gameTypes.Game) {
+GameRender :: proc(game: ^types.Game) {
 	matchBackground.renderBackground(game)
 	renderMatchInfo(game)
 

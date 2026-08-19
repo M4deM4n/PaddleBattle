@@ -1,10 +1,10 @@
 package PaddleBattle
 
 import "core:math/rand"
-import "gameTypes"
 import "matchBackground"
 import "particleSystem"
 import "spriteAnimation"
+import "types"
 import rl "vendor:raylib"
 
 SINGLE_PLAYER :: "Single Player"
@@ -19,19 +19,19 @@ fireworksTimer: f32
 fireworksDelay: f32 = 1
 fireworksColor: [2]rl.Color = [2]rl.Color{{0, 0, 255, 255}, {255, 0, 0, 255}}
 
-MainMenuInput :: proc(game: ^gameTypes.Game) {
+MainMenuInput :: proc(game: ^types.Game) {
 	if rl.IsKeyPressed(.ESCAPE) {
 		shouldClose = true
 	}
 
 	if rl.IsKeyPressed(.W) {
 		selectedOption -= 1
-		rl.PlaySound(audioMenuSelect)
+		rl.PlaySound(game.audio.sfx["menu.choice"])
 	}
 
 	if rl.IsKeyPressed(.S) {
 		selectedOption += 1
-		rl.PlaySound(audioMenuSelect)
+		rl.PlaySound(game.audio.sfx["menu.choice"])
 	}
 
 	if rl.IsKeyPressed(.SPACE) || rl.IsKeyPressed(.ENTER) {
@@ -47,8 +47,8 @@ MainMenuInput :: proc(game: ^gameTypes.Game) {
 
 		particleSystem.clear()
 		initMatch(game)
-		rl.StopMusicStream(music[currentSong])
-		rl.StopMusicStream(titleMusic)
+		rl.StopMusicStream(game.audio.music[currentSong])
+		rl.StopMusicStream(game.audio.titleMusic)
 
 		game.state = .MatchBegin
 	}
@@ -63,24 +63,24 @@ MainMenuInput :: proc(game: ^gameTypes.Game) {
 	}
 }
 
-MainMenuUpdate :: proc(game: ^gameTypes.Game, dt: f32) {
+MainMenuUpdate :: proc(game: ^types.Game, dt: f32) {
 	fireworksTimer += dt
 
-	if !rl.IsMusicStreamPlaying(titleMusic) {
-		rl.PlayMusicStream(titleMusic)
+	if !rl.IsMusicStreamPlaying(game.audio.titleMusic) {
+		rl.PlayMusicStream(game.audio.titleMusic)
 	}
 
-	rl.UpdateMusicStream(titleMusic)
+	rl.UpdateMusicStream(game.audio.titleMusic)
 
-	if !rl.IsSoundPlaying(audioTitle) && !MainMenuLoaded {
+	if !rl.IsSoundPlaying(game.audio.sfx["title.paddlebattle"]) && !MainMenuLoaded {
 		spriteAnimation.play(&winImg, "win", true)
 		MainMenuLoaded = true
-		rl.PlaySound(audioTitle)
+		rl.PlaySound(game.audio.sfx["title.paddlebattle"])
 		// rl.PlayMusicStream(music)
 	}
 
 	if fireworksTimer >= fireworksDelay {
-		rl.PlaySound(audioBallImpact)
+		rl.PlaySound(game.audio.sfx["ball.impact"])
 		o := rl.Vector2 {
 			f32(rand.int_range(0, int(game.screen.x))),
 			f32(rand.int_range(0, int(game.screen.y))),
@@ -115,7 +115,7 @@ MainMenuUpdate :: proc(game: ^gameTypes.Game, dt: f32) {
 	MainMenuInput(game)
 }
 
-MainMenuRender :: proc(game: ^gameTypes.Game) {
+MainMenuRender :: proc(game: ^types.Game) {
 	particleSystem.render()
 
 	spriteAnimation.render(&winImg, {850, game.screen.y + 10}, 8, true, rl.BLUE)

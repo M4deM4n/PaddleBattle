@@ -1,84 +1,86 @@
 package PaddleBattle
 
 import "core:fmt"
+import "types"
 import rl "vendor:raylib"
 
-introLaughter: rl.Sound
-audioTitle: rl.Sound
-audioMenuSelect: rl.Sound
-audioStartMatch: rl.Sound
-audioBallImpact: rl.Sound
-audioHorn: rl.Sound
-audioSpeedingUp: rl.Sound
-announcerGoal: [12]rl.Sound
-announcerRally: [11]rl.Sound
-titleMusic: rl.Music
-music: [2]rl.Music
-currentSong: i32 = 1
+currentSong: int
 
-initAudio :: proc() {
+initAudioLibrary :: proc() -> types.audioLibrary {
+	lib: types.audioLibrary
+
+	lib.sfx = make(map[string]rl.Sound)
+	lib.music = make([dynamic]rl.Music)
+	lib.announcer.goal = make([dynamic]rl.Sound)
+	lib.announcer.rally = make([dynamic]rl.Sound)
+
+	lib.sfx["intro.laughter"] = rl.LoadSound("../res/sfx/laughter.ogg")
+	lib.sfx["title.paddlebattle"] = rl.LoadSound("../res/sfx/announcer/paddlebattle.mp3")
+	lib.sfx["menu.choice"] = rl.LoadSound("../res/sfx/menu_select.ogg")
+	lib.sfx["match.start"] = rl.LoadSound("../res/sfx/announcer/321go.mp3")
+	lib.sfx["match.speed"] = rl.LoadSound("../res/sfx/announcer/speedingup.mp3")
+	lib.sfx["match.score"] = rl.LoadSound("../res/sfx/horn.ogg")
+	lib.sfx["ball.impact"] = rl.LoadSound("../res/sfx/ball_impact.ogg")
+
+	lib.titleMusic = rl.LoadMusicStream("../res/sfx/music/fcountdown.ogg")
+
+	append(&lib.music, rl.LoadMusicStream("../res/sfx/music/eyeofthetiger.ogg"))
+	append(&lib.music, rl.LoadMusicStream("../res/sfx/music/heartsonfire.ogg"))
+
 	introSoundPlayed = false
-	introLaughter = rl.LoadSound("../res/sfx/laughter.ogg")
-	audioTitle = rl.LoadSound("../res/sfx/announcer/paddlebattle.mp3")
-	audioMenuSelect = rl.LoadSound("../res/sfx/menu_select.ogg")
-	audioStartMatch = rl.LoadSound("../res/sfx/announcer/321go.mp3")
-	audioBallImpact = rl.LoadSound("../res/sfx/ball_impact.ogg")
-	audioHorn = rl.LoadSound("../res/sfx/horn.ogg")
-	audioSpeedingUp = rl.LoadSound("../res/sfx/announcer/speedingup.mp3")
-
-	titleMusic = rl.LoadMusicStream("../res/sfx/music/fcountdown.ogg")
-	music[0] = rl.LoadMusicStream("../res/sfx/music/eyeofthetiger.ogg")
-	music[1] = rl.LoadMusicStream("../res/sfx/music/heartsonfire.ogg")
 	currentSong = 0
 
 	// goal
 	for i in 0 ..< 12 {
 		filePath: cstring = fmt.caprintf("../res/sfx/announcer/goal/goal (%d).mp3", i + 1)
 		defer delete(filePath)
-		announcerGoal[i] = rl.LoadSound(cstring(filePath))
+
+		append(&lib.announcer.goal, rl.LoadSound(cstring(filePath)))
 	}
 
 	// rally
 	for i in 0 ..< 11 {
 		filePath: cstring = fmt.caprintf("../res/sfx/announcer/rally/rally (%d).mp3", i + 1)
 		defer delete(filePath)
-		announcerRally[i] = rl.LoadSound(cstring(filePath))
+
+		append(&lib.announcer.rally, rl.LoadSound(cstring(filePath)))
 	}
 
+	return lib
 }
 
-nextTrack :: proc() {
-	if rl.IsMusicStreamPlaying(music[currentSong]) {
-		rl.StopMusicStream(music[currentSong])
+nextTrack :: proc(lib: ^types.audioLibrary) {
+	if rl.IsMusicStreamPlaying(lib.music[currentSong]) {
+		rl.StopMusicStream(lib.music[currentSong])
 	}
 	next := currentSong + 1
-	if next >= len(music) do next = 0
+	if next >= len(lib.music) do next = 0
 	currentSong = next
 
-	rl.PlayMusicStream(music[currentSong])
+	rl.PlayMusicStream(lib.music[currentSong])
 }
 
 
-unloadAudio :: proc() {
-	rl.UnloadSound(introLaughter)
-	rl.UnloadSound(audioTitle)
-	rl.UnloadSound(audioMenuSelect)
-	rl.UnloadSound(audioStartMatch)
-	rl.UnloadSound(audioBallImpact)
-	rl.UnloadSound(audioHorn)
-	rl.UnloadSound(audioSpeedingUp)
-
-	for sound in announcerGoal {
+destroyAudioLibrary :: proc(lib: ^types.audioLibrary) {
+	for _, sound in lib.sfx {
 		rl.UnloadSound(sound)
 	}
+	delete(lib.sfx)
 
-	for sound in announcerRally {
+	for sound in lib.announcer.goal {
 		rl.UnloadSound(sound)
 	}
+	delete(lib.announcer.goal)
 
-	for song in music {
-		rl.UnloadMusicStream(song)
+	for sound in lib.announcer.rally {
+		rl.UnloadSound(sound)
 	}
+	delete(lib.announcer.rally)
 
-	rl.UnloadMusicStream(titleMusic)
+	for music in lib.music {
+		rl.UnloadMusicStream(music)
+	}
+	delete(lib.music)
+
+	rl.UnloadMusicStream(lib.titleMusic)
 }

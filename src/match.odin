@@ -2,9 +2,9 @@ package PaddleBattle
 
 import "core:fmt"
 import "core:math/rand"
-import "gameTypes"
 import "matchBackground"
 import "particleSystem"
+import "types"
 import rl "vendor:raylib"
 
 MatchState :: struct {
@@ -28,7 +28,7 @@ announceSpeed: bool = true
 scoreColor: rl.Color = rl.LIGHTGRAY
 currentScoreColor: rl.Color = {0, 0, 96, 255}
 
-initMatch :: proc(game: ^gameTypes.Game) {
+initMatch :: proc(game: ^types.Game) {
 	currentMatch = MatchState {
 		matchLength      = 120,
 		ballAcceleration = 50,
@@ -52,7 +52,7 @@ initMatch :: proc(game: ^gameTypes.Game) {
 
 	matchBackground.cycleBackground()
 	matchBackground.resetBackground(game)
-	nextTrack()
+	nextTrack(&game.audio)
 	resetMatch(game)
 }
 
@@ -61,30 +61,31 @@ updateMatch :: proc(dt: f32) {
 	currentScoreColor = rl.ColorLerp(currentScoreColor, scoreColor, dt * 0.5)
 }
 
-updateRally :: proc() {
+updateRally :: proc(game: ^types.Game) {
 	currentMatch.rallyCount += 1
 	currentMatch.rallyScore += currentMatch.rallyCount * 10
 	currentScoreColor = rl.WHITE
 
 	if currentMatch.rallyCount == 8 && announceSpeed {
 		announceSpeed = false
-		rl.PlaySound(audioSpeedingUp)
+		rl.PlaySound(game.audio.sfx["match.speed"])
 	}
 
 	if currentMatch.rallyCount % 15 == 0 {
-		rl.PlaySound(rand.choice(announcerRally[:]))
+		rl.PlaySound(rand.choice(game.audio.announcer.rally[:]))
+		// rl.PlaySound(rand.choice(announcerRally[:]))
 	}
 }
 
-resetMatch :: proc(game: ^gameTypes.Game) {
+resetMatch :: proc(game: ^types.Game) {
 	currentMatch.currentBallSpeed = currentMatch.ballSpeed
 	currentMatch.rallyCount = 0
 	currentMatch.timer = 0
 
 	announceSpeed = true
 
-	rand.shuffle(announcerRally[:])
-	rand.shuffle(announcerGoal[:])
+	rand.shuffle(game.audio.announcer.rally[:])
+	rand.shuffle(game.audio.announcer.goal[:])
 
 	resetPaddles(game)
 	resetBall(game)
@@ -95,7 +96,7 @@ resetMatch :: proc(game: ^gameTypes.Game) {
 	game.state = .MatchBegin
 }
 
-renderMatchInfo :: proc(game: ^gameTypes.Game) {
+renderMatchInfo :: proc(game: ^types.Game) {
 	scoreOffsetY: f32 = 0
 	scoreSize: f32 = 72
 
@@ -117,7 +118,7 @@ renderMatchInfo :: proc(game: ^gameTypes.Game) {
 }
 
 
-renderMatchGoals :: proc(game: ^gameTypes.Game) {
+renderMatchGoals :: proc(game: ^types.Game) {
 	renderText(
 		{(game.screen.x * 0.25), game.screen.y * 0.5},
 		i32ToCString(currentMatch.p1Goals),

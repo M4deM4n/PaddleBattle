@@ -1,6 +1,6 @@
 package MatchBackground
 
-import "../gameTypes"
+import "../types"
 import "core:c"
 import rl "vendor:raylib"
 
@@ -18,7 +18,7 @@ lastStarFieldDirection: f32
 currentStarFieldDirection: f32
 timeSinceChange: f32
 
-makeStarfieldSquaresBackground :: proc(game: ^gameTypes.Game) -> Background {
+makeStarfieldSquaresBackground :: proc(game: ^types.Game) -> Background {
 	bg: Background
 	bg.id = .StarfieldSquares
 	bg.name = "Starfield Rects"
@@ -43,7 +43,7 @@ makeStarfieldSquaresBackground :: proc(game: ^gameTypes.Game) -> Background {
 	return bg
 }
 
-starfieldUpdate :: proc(game: ^gameTypes.Game, bg: ^Background, dt: f32) {
+starfieldUpdate :: proc(game: ^types.Game, bg: ^Background, dt: f32) {
 	StarfieldTimer += dt
 	timeSinceChange += dt
 

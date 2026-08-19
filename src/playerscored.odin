@@ -1,16 +1,16 @@
 package PaddleBattle
 
 import "core:math/rand"
-import "gameTypes"
 import "matchBackground"
 import "particleSystem"
+import "types"
 import rl "vendor:raylib"
 
 announceScoreDialog: bool = true
 dialogDelayTimer: f32
 
 
-PlayerScoredInput :: proc(game: ^gameTypes.Game) {
+PlayerScoredInput :: proc(game: ^types.Game) {
 	if rl.IsKeyPressed(.ESCAPE) {
 		game.state = .MainMenu
 	}
@@ -20,26 +20,26 @@ PlayerScoredInput :: proc(game: ^gameTypes.Game) {
 		announceScoreDialog = true
 		dialogDelayTimer = 0
 		game.state = .MatchBegin
-		rl.StopMusicStream(music[currentSong])
+		rl.StopMusicStream(game.audio.music[currentSong])
 		particleSystem.clear()
 	}
 }
 
-PlayerScoredUpdate :: proc(game: ^gameTypes.Game, dt: f32) {
+PlayerScoredUpdate :: proc(game: ^types.Game, dt: f32) {
 	fireworksTimer += dt
 	dialogDelayTimer += dt
 
-	if rl.IsMusicStreamPlaying(music[currentSong]) {
-		rl.UpdateMusicStream(music[currentSong])
+	if rl.IsMusicStreamPlaying(game.audio.music[currentSong]) {
+		rl.UpdateMusicStream(game.audio.music[currentSong])
 	}
 
 	if announceScoreDialog && dialogDelayTimer >= 1.0 {
-		rl.PlaySound(rand.choice(announcerGoal[:]))
+		rl.PlaySound(rand.choice(game.audio.announcer.goal[:]))
 		announceScoreDialog = false
 	}
 
 	if fireworksTimer >= fireworksDelay {
-		rl.PlaySound(audioBallImpact)
+		rl.PlaySound(game.audio.sfx["ball.impact"])
 		o := rl.Vector2 {
 			f32(rand.int_range(0, int(game.screen.x))),
 			f32(rand.int_range(0, int(game.screen.y))),
@@ -69,7 +69,7 @@ PlayerScoredUpdate :: proc(game: ^gameTypes.Game, dt: f32) {
 	PlayerScoredInput(game)
 }
 
-PlayerScoredRender :: proc(game: ^gameTypes.Game) {
+PlayerScoredRender :: proc(game: ^types.Game) {
 	matchBackground.renderBackground(game)
 	particleSystem.render()
 	renderMatchGoals(game)

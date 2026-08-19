@@ -1,6 +1,18 @@
-package GameTypes
+package types
 
 import rl "vendor:raylib"
+
+announcerDialog :: struct {
+	goal:  [dynamic]rl.Sound,
+	rally: [dynamic]rl.Sound,
+}
+
+audioLibrary :: struct {
+	sfx:        map[string]rl.Sound,
+	announcer:  announcerDialog,
+	titleMusic: rl.Music,
+	music:      [dynamic]rl.Music,
+}
 
 Ball :: struct {
 	position:     rl.Vector2,
@@ -39,6 +51,7 @@ GameMode :: enum {
 }
 
 Game :: struct {
+	audio:        audioLibrary,
 	screen:       rl.Vector2,
 	centerScreen: rl.Vector2,
 	ball:         Ball,

@@ -2,8 +2,8 @@ package PaddleBattle
 
 import "core:c"
 import "core:os"
-import "gameTypes"
 import "spriteAnimation"
+import "types"
 import rl "vendor:raylib"
 
 WINDOW_WIDTH :: 1920
@@ -34,9 +34,12 @@ main :: proc() {
 	rl.InitAudioDevice()
 	defer rl.CloseAudioDevice()
 
-	game: gameTypes.Game
+	game: types.Game
 	game.screen = {f32(WINDOW_WIDTH), f32(WINDOW_HEIGHT)}
 	game.centerScreen = {game.screen.x * 0.5, game.screen.y * 0.5}
+	game.audio = initAudioLibrary()
+	defer destroyAudioLibrary(&game.audio)
+
 
 	studioTexture = rl.LoadTexture("../res/img/poo.png")
 	defer rl.UnloadTexture(studioTexture)
@@ -48,7 +51,7 @@ main :: proc() {
 	defer rl.UnloadTexture(winImg.texture)
 
 	// init with override starting point
-	init(&game, gameTypes.GameState.Intro)
+	init(&game, types.GameState.Intro)
 
 	initFont()
 	defer rl.UnloadFont(gameFont.font)
@@ -112,7 +115,6 @@ main :: proc() {
 		free_all(context.temp_allocator)
 	}
 
-	unloadAudio()
 	rl.UnloadRenderTexture(renderTarget)
 	rl.CloseWindow()
 }
